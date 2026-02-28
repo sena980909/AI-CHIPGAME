@@ -21,7 +21,10 @@
       <div class="dialogue-portrait" id="dialogue-portrait"></div>
       <div class="dialogue-speaker" id="dialogue-speaker"></div>
       <div class="dialogue-text" id="dialogue-text"></div>
-      <div class="dialogue-continue">[CLICK / ENTER]</div>
+      <div class="dialogue-footer">
+        <span class="dialogue-continue">[CLICK / ENTER]</span>
+        <button class="dialogue-skip" id="btn-skip-dialogue">SKIP ALL [ESC]</button>
+      </div>
     </div>
   </div>
 
@@ -35,7 +38,7 @@
       </div>
       <div class="hud-right">
         <button class="hud-btn hint-btn" id="btn-hint">HINT [H]</button>
-        <button class="hud-btn" id="btn-undo">UNDO [Z]</button>
+        <button class="hud-btn" id="btn-undo">UNDO [Ctrl+Z]</button>
         <button class="hud-btn" id="btn-clear">CLEAR</button>
         <button class="hud-btn primary" id="btn-submit">SUBMIT [Enter]</button>
       </div>
@@ -137,7 +140,10 @@
       </div>
     </div>
     <div class="result-total">TOTAL: <span id="res-total">0</span></div>
-    <button class="result-btn" id="btn-next-level">CONTINUE</button>
+    <div style="display:flex;gap:15px;">
+      <button class="result-btn" id="btn-retry-level" style="border-color:var(--orange);color:var(--orange);">RETRY</button>
+      <button class="result-btn" id="btn-next-level">CONTINUE</button>
+    </div>
   </div>
 
   <!-- ===== VICTORY SCREEN ===== -->
@@ -147,6 +153,19 @@
     <div class="victory-stats" id="victory-stats"></div>
     <button class="result-btn" id="btn-restart">RESTART</button>
   </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- BGM Audio -->
+  <audio id="bgm" loop preload="auto">
+    <source src="asset/ai-chipgame.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- BGM Toggle Button (fixed) -->
+  <button class="bgm-btn" id="btn-bgm" title="BGM ON/OFF">
+    <span id="bgm-icon">♪</span>
+  </button>
 
   <!-- Scripts -->
   <script src="js/levels.js"></script>

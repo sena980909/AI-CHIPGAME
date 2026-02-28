@@ -142,12 +142,33 @@ body::after {
   white-space: pre-wrap;
 }
 
-.dialogue-continue {
-  text-align: right;
+.dialogue-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 20px;
+}
+
+.dialogue-continue {
   color: var(--text-dim);
   font-size: 0.8rem;
   animation: blink 1.5s infinite;
+}
+
+.dialogue-skip {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+}
+.dialogue-skip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .dialogue-portrait {
@@ -749,6 +770,71 @@ body::after {
   font-weight: bold;
   color: var(--accent);
   margin-top: 5px;
+}
+
+/* ===== Toast Notification ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--bg2);
+  border: 1px solid var(--red);
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 12px 24px;
+  border-radius: 8px;
+  z-index: 10000;
+  opacity: 0;
+  transition: all 0.4s ease;
+  pointer-events: none;
+  box-shadow: 0 0 20px rgba(255,56,96,0.2);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===== BGM Toggle Button ===== */
+.bgm-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 9998;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bgm-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: var(--glow);
+}
+.bgm-btn.playing {
+  border-color: var(--accent);
+  color: var(--accent);
+  animation: bgmPulse 2s ease-in-out infinite;
+}
+.bgm-btn.muted {
+  color: var(--text-dim);
+  border-color: var(--border);
+  animation: none;
+  text-decoration: line-through;
+}
+
+@keyframes bgmPulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(0,240,255,0.2); }
+  50% { box-shadow: 0 0 15px rgba(0,240,255,0.4); }
 }
 
 /* ===== Utility ===== */

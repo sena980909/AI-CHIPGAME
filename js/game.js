@@ -64,6 +64,9 @@ TeraFab.Game = (function() {
     // Bind events
     bindEvents();
 
+    // Init BGM
+    initBGM();
+
     // Start at title
     if (state.phase === 'TITLE') {
       Renderer.showScreen('title-screen');
@@ -132,10 +135,12 @@ TeraFab.Game = (function() {
     // Check if all objectives met
     var allMet = Engine.allObjectivesMet(state.grid, level);
     if (!allMet) {
-      // Show failed objectives
+      // Count failed
+      var failedList = [];
       for (var i = 0; i < objResults.length; i++) {
         if (!objResults[i].passed) {
           objResults[i].failed = true;
+          failedList.push(objResults[i].desc);
         }
       }
       // Re-render with failed state
@@ -149,6 +154,8 @@ TeraFab.Game = (function() {
           }
         }
       }
+      // Show toast with first failed objective
+      Renderer.showToast('목표 미달성: ' + failedList[0]);
       return;
     }
 
@@ -241,6 +248,18 @@ TeraFab.Game = (function() {
     });
   }
 
+  function skipAllDialogue() {
+    if (state.phase !== 'DIALOGUE') return;
+    Renderer.skipTyping();
+    state.dialogueQueue = [];
+    state.dialogueIndex = 0;
+    if (state.dialogueNextPhase) {
+      var cb = state.dialogueNextPhase;
+      state.dialogueNextPhase = null;
+      cb();
+    }
+  }
+
   // ===== CELL INTERACTION =====
 
   function onCellClick(row, col) {
@@ -323,8 +342,23 @@ TeraFab.Game = (function() {
     var objResults = Engine.checkObjectives(state.grid, level);
     Renderer.updateObjectives(objResults);
 
-    // Clear hint highlights when grid changes
+    // Auto-refresh hint when grid changes
     Renderer.clearHintHighlights();
+    autoUpdateHint();
+  }
+
+  /** Silently update hint text (no highlight) when grid changes */
+  function autoUpdateHint() {
+    var level = Levels[state.currentLevel];
+    if (!level.hints) return;
+    for (var i = 0; i < level.hints.length; i++) {
+      var hint = level.hints[i];
+      if (hint.condition(state.grid)) {
+        Renderer.showHint(hint.text);
+        return;
+      }
+    }
+    Renderer.showHint("블록을 배치하고 오른쪽 목표를 모두 달성하면 SUBMIT!");
   }
 
   // ===== HINT SYSTEM =====
@@ -361,6 +395,63 @@ TeraFab.Game = (function() {
     Renderer.showHint("블록을 배치하고 오른쪽 목표(OBJECTIVES)를 모두 달성하면 SUBMIT!");
   }
 
+  // ===== BGM SYSTEM =====
+
+  var _bgmStarted = false;
+  var _bgmMuted = false;
+
+  function initBGM() {
+    var audio = document.getElementById('bgm');
+    var btn = document.getElementById('btn-bgm');
+    if (!audio || !btn) return;
+
+    audio.volume = 0.35;
+
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleBGM();
+    });
+
+    // Try to start BGM on first user interaction
+    function tryStartBGM() {
+      if (_bgmStarted) return;
+      _bgmStarted = true;
+      if (!_bgmMuted) {
+        audio.play().catch(function() {});
+        btn.classList.add('playing');
+        btn.classList.remove('muted');
+      }
+      document.removeEventListener('click', tryStartBGM);
+      document.removeEventListener('keydown', tryStartBGM);
+    }
+
+    document.addEventListener('click', tryStartBGM);
+    document.addEventListener('keydown', tryStartBGM);
+  }
+
+  function toggleBGM() {
+    var audio = document.getElementById('bgm');
+    var btn = document.getElementById('btn-bgm');
+    var icon = document.getElementById('bgm-icon');
+    if (!audio || !btn) return;
+
+    if (_bgmMuted) {
+      // Unmute
+      _bgmMuted = false;
+      audio.play().catch(function() {});
+      btn.classList.add('playing');
+      btn.classList.remove('muted');
+      if (icon) icon.textContent = '\u266A';
+    } else {
+      // Mute
+      _bgmMuted = true;
+      audio.pause();
+      btn.classList.remove('playing');
+      btn.classList.add('muted');
+      if (icon) icon.textContent = '\u266A';
+    }
+  }
+
   // ===== EVENT BINDING =====
 
   function bindEvents() {
@@ -370,9 +461,17 @@ TeraFab.Game = (function() {
     });
 
     // Dialogue click to advance
-    document.getElementById('dialogue-screen').addEventListener('click', function() {
+    document.getElementById('dialogue-screen').addEventListener('click', function(e) {
+      if (e.target.id === 'btn-skip-dialogue') return; // handled separately
       if (state.phase === 'DIALOGUE') {
         Renderer.advanceDialogue();
+      }
+    });
+
+    // Skip all dialogue
+    document.getElementById('btn-skip-dialogue').addEventListener('click', function() {
+      if (state.phase === 'DIALOGUE') {
+        skipAllDialogue();
       }
     });
 
@@ -382,9 +481,16 @@ TeraFab.Game = (function() {
     document.getElementById('btn-clear').addEventListener('click', clearGrid);
     document.getElementById('btn-submit').addEventListener('click', submitDesign);
 
-    // Result next button
+    // Result buttons
     document.getElementById('btn-next-level').addEventListener('click', function() {
       if (state.phase === 'RESULTS') nextLevel();
+    });
+    document.getElementById('btn-retry-level').addEventListener('click', function() {
+      if (state.phase === 'RESULTS') {
+        // Remove last result since we're retrying
+        state.levelResults.pop();
+        startPlaying();
+      }
     });
 
     // Victory restart
@@ -398,9 +504,12 @@ TeraFab.Game = (function() {
 
     // Keyboard
     document.addEventListener('keydown', function(e) {
-      // Dialogue advance
+      // Dialogue advance / skip
       if (state.phase === 'DIALOGUE') {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          skipAllDialogue();
+        } else if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           Renderer.advanceDialogue();
         }

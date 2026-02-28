@@ -174,7 +174,8 @@ TeraFab.Engine = (function() {
     return Infinity;
   }
 
-  /** Count thermal hotspots: groups of 3+ active (non-R) IP blocks in adjacent cluster */
+  /** Count thermal hotspots: groups of 3+ active (non-R) IP blocks in adjacent cluster.
+   *  Routing acts as thermal via — cells with R neighbor get penalty halved. */
   function countHeatPenalty(grid) {
     var size = grid.length;
     var penalty = 0;
@@ -182,18 +183,26 @@ TeraFab.Engine = (function() {
     for (var r = 0; r < size; r++) {
       for (var c = 0; c < size; c++) {
         if (grid[r][c] && grid[r][c] !== 'R') {
-          // Count active neighbors
+          // Count active (non-R) neighbors
           var activeNeighbors = 0;
+          var hasRoutingNeighbor = false;
           for (var d = 0; d < DIRS.length; d++) {
             var nr = r + DIRS[d][0];
             var nc = c + DIRS[d][1];
-            if (inBounds(grid, nr, nc) && grid[nr][nc] && grid[nr][nc] !== 'R') {
-              activeNeighbors++;
+            if (inBounds(grid, nr, nc) && grid[nr][nc]) {
+              if (grid[nr][nc] === 'R') {
+                hasRoutingNeighbor = true;
+              } else {
+                activeNeighbors++;
+              }
             }
           }
           // Penalty if 2+ active neighbors (makes 3+ cluster with self)
           if (activeNeighbors >= 2) {
-            penalty += (activeNeighbors - 1) * 3;
+            var pen = (activeNeighbors - 1) * 1;
+            // R acts as thermal via: halve penalty if routing is adjacent
+            if (hasRoutingNeighbor) pen = Math.ceil(pen * 0.5);
+            penalty += pen;
           }
         }
       }
@@ -297,8 +306,8 @@ TeraFab.Engine = (function() {
 
     // Normalize: lower power = higher score
     // Expected range: for 3x3 ~3-15, for 5x5 ~5-40
-    var maxExpected = size === 3 ? 12 : 35;
-    var minExpected = size === 3 ? 2 : 4;
+    var maxExpected = size === 3 ? 20 : 50;
+    var minExpected = size === 3 ? 1 : 2;
 
     // Score: 100 when power is at or below minExpected, 0 when at maxExpected
     var normalized = 1 - ((totalPower - minExpected) / (maxExpected - minExpected));

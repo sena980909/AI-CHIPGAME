@@ -13,10 +13,13 @@ TeraFab.Renderer = (function() {
     var screens = document.querySelectorAll('.screen');
     for (var i = 0; i < screens.length; i++) {
       screens[i].classList.remove('active');
+      screens[i].classList.remove('fade-in');
     }
     var target = document.getElementById(screenId);
     if (target) {
       target.classList.add('active');
+      // Re-trigger fade-in animation by forcing reflow
+      void target.offsetWidth;
       target.classList.add('fade-in');
     }
   }
@@ -259,6 +262,16 @@ TeraFab.Renderer = (function() {
     }, 15);
   }
 
+  /** Stop typing timer (used by skip all) */
+  function skipTyping() {
+    if (_typeTimer) {
+      clearInterval(_typeTimer);
+      _typeTimer = null;
+    }
+    _typeComplete = true;
+    _typeCallback = null;
+  }
+
   /** Skip to full text or advance if already complete. Returns true if advancing. */
   function advanceDialogue() {
     if (!_typeComplete) {
@@ -341,6 +354,20 @@ TeraFab.Renderer = (function() {
     }
   }
 
+  // ===== Toast Notification =====
+
+  var _toastTimer = null;
+  function showToast(text) {
+    var el = document.getElementById('toast');
+    if (!el) return;
+    if (_toastTimer) clearTimeout(_toastTimer);
+    el.textContent = text;
+    el.classList.add('show');
+    _toastTimer = setTimeout(function() {
+      el.classList.remove('show');
+    }, 3000);
+  }
+
   // ===== Hint System =====
 
   function showHint(text) {
@@ -396,8 +423,10 @@ TeraFab.Renderer = (function() {
     updateHUD: updateHUD,
     showDialogue: showDialogue,
     advanceDialogue: advanceDialogue,
+    skipTyping: skipTyping,
     showResult: showResult,
     showVictory: showVictory,
+    showToast: showToast,
     showHint: showHint,
     clearHintHighlights: clearHintHighlights,
     highlightCells: highlightCells,

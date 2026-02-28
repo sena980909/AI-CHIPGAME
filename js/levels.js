@@ -18,7 +18,7 @@ TeraFab.Levels = [
     // PPA weights
     weights: { performance: 0.40, power: 0.30, area: 0.30 },
     // Rank thresholds
-    ranks: { S: 85, A: 70, B: 50, C: 0 },
+    ranks: { S: 75, A: 60, B: 40, C: 0 },
     // Objectives the player must meet to submit
     objectives: [
       {
@@ -170,7 +170,7 @@ TeraFab.Levels = [
       { row: 2, col: 2, type: 'N' }
     ],
     weights: { performance: 0.35, power: 0.35, area: 0.30 },
-    ranks: { S: 90, A: 75, B: 55, C: 0 },
+    ranks: { S: 70, A: 55, B: 35, C: 0 },
     objectives: [
       {
         id: 'min_T',
