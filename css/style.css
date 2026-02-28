@@ -482,6 +482,51 @@ body::after {
   border-radius: 50%;
 }
 
+/* Blocked cells — forbidden zone */
+.chip-grid td.blocked {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255,56,96,0.08),
+    rgba(255,56,96,0.08) 4px,
+    rgba(255,56,96,0.02) 4px,
+    rgba(255,56,96,0.02) 8px
+  );
+  cursor: not-allowed;
+  border-color: rgba(255,56,96,0.3);
+}
+.chip-grid td.blocked:hover {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255,56,96,0.12),
+    rgba(255,56,96,0.12) 4px,
+    rgba(255,56,96,0.04) 4px,
+    rgba(255,56,96,0.04) 8px
+  );
+  border-color: rgba(255,56,96,0.5);
+  box-shadow: none;
+}
+.blocked-x {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--red);
+  opacity: 0.5;
+}
+
+/* Grid size variants */
+.chip-grid.size-4 td { width: 80px; height: 80px; }
+.chip-grid.size-6 td { width: 68px; height: 68px; font-size: 0.65rem; }
+.chip-grid.size-6 td .cell-label { font-size: 0.8rem; }
+.chip-grid.size-6 td .cell-name { font-size: 0.5rem; }
+.chip-grid.size-7 td { width: 60px; height: 60px; font-size: 0.6rem; }
+.chip-grid.size-7 td .cell-label { font-size: 0.75rem; }
+.chip-grid.size-7 td .cell-name { font-size: 0.45rem; }
+.chip-grid.size-8 td { width: 54px; height: 54px; font-size: 0.55rem; }
+.chip-grid.size-8 td .cell-label { font-size: 0.7rem; }
+.chip-grid.size-8 td .cell-name { font-size: 0.4rem; }
+.chip-grid.size-9 td { width: 48px; height: 48px; font-size: 0.5rem; }
+.chip-grid.size-9 td .cell-label { font-size: 0.65rem; }
+.chip-grid.size-9 td .cell-name { font-size: 0.38rem; }
+
 .cell-label {
   font-size: 0.85rem;
   font-weight: bold;
@@ -711,6 +756,19 @@ body::after {
   color: var(--accent);
   font-size: 2rem;
   font-weight: bold;
+}
+
+/* Rank gate message */
+.rank-gate-msg {
+  font-size: 0.9rem;
+  color: var(--red);
+  text-shadow: 0 0 10px rgba(255,56,96,0.4);
+  padding: 10px 20px;
+  border: 1px solid var(--red);
+  border-radius: 6px;
+  background: rgba(255,56,96,0.08);
+  animation: blink 1.5s infinite;
+  letter-spacing: 1px;
 }
 
 .result-btn {
@@ -1055,5 +1113,11 @@ body::after {
   .toolbar { width: 140px; padding: 10px; }
   .info-panel { width: 200px; padding: 10px; }
   .chip-grid td { width: 60px; height: 60px; }
+  .chip-grid.size-6 td { width: 52px; height: 52px; }
+  .chip-grid.size-7 td { width: 46px; height: 46px; }
+  .chip-grid.size-8 td { width: 40px; height: 40px; font-size: 0.45rem; }
+  .chip-grid.size-8 td .cell-label { font-size: 0.6rem; }
+  .chip-grid.size-9 td { width: 36px; height: 36px; font-size: 0.4rem; }
+  .chip-grid.size-9 td .cell-label { font-size: 0.55rem; }
   .title-logo { font-size: 2rem; }
 }

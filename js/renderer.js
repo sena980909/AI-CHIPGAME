@@ -31,7 +31,7 @@ TeraFab.Renderer = (function() {
     container.innerHTML = '';
 
     var table = document.createElement('table');
-    table.className = 'chip-grid';
+    table.className = 'chip-grid size-' + size;
 
     for (var r = 0; r < size; r++) {
       var tr = document.createElement('tr');
@@ -78,7 +78,7 @@ TeraFab.Renderer = (function() {
     }
   }
 
-  function updateGrid(grid, lockedCells) {
+  function updateGrid(grid, lockedCells, blockedCells) {
     var lockedMap = {};
     if (lockedCells) {
       for (var i = 0; i < lockedCells.length; i++) {
@@ -87,12 +87,34 @@ TeraFab.Renderer = (function() {
       }
     }
 
-    for (var r = 0; r < grid.length; r++) {
-      for (var c = 0; c < grid[r].length; c++) {
-        var isLocked = lockedMap[r + ',' + c] || false;
-        updateCell(r, c, grid[r][c], isLocked);
+    var blockedMap = {};
+    if (blockedCells) {
+      for (var i = 0; i < blockedCells.length; i++) {
+        var bc = blockedCells[i];
+        blockedMap[bc.row + ',' + bc.col] = true;
       }
     }
+
+    for (var r = 0; r < grid.length; r++) {
+      for (var c = 0; c < grid[r].length; c++) {
+        var key = r + ',' + c;
+        if (blockedMap[key]) {
+          updateBlockedCell(r, c);
+        } else {
+          var locked = lockedMap[key] || false;
+          updateCell(r, c, grid[r][c], locked);
+        }
+      }
+    }
+  }
+
+  function updateBlockedCell(row, col) {
+    var td = document.querySelector(
+      '.chip-grid td[data-row="' + row + '"][data-col="' + col + '"]'
+    );
+    if (!td) return;
+    td.className = 'blocked';
+    td.innerHTML = '<span class="blocked-x">X</span><span class="cell-coord">' + row + ',' + col + '</span>';
   }
 
   // ===== Toolbar =====
@@ -296,7 +318,7 @@ TeraFab.Renderer = (function() {
 
   // ===== Result Screen =====
 
-  function showResult(evalResult, level) {
+  function showResult(evalResult, level, rankGated) {
     showScreen('result-screen');
 
     var rankEl = document.getElementById('result-rank');
@@ -305,6 +327,8 @@ TeraFab.Renderer = (function() {
     var resArea = document.getElementById('res-area');
     var resTotal = document.getElementById('res-total');
     var title = document.getElementById('result-title');
+    var gateMsg = document.getElementById('rank-gate-msg');
+    var nextBtn = document.getElementById('btn-next-level');
 
     if (title) title.textContent = 'Lv.' + level.id + ' EVALUATION COMPLETE';
 
@@ -312,6 +336,18 @@ TeraFab.Renderer = (function() {
     if (rankEl) {
       rankEl.textContent = evalResult.rank;
       rankEl.className = 'result-rank rank-' + evalResult.rank;
+    }
+
+    // Rank gate UI
+    if (rankGated) {
+      if (gateMsg) {
+        gateMsg.textContent = 'RANK ' + level.minRank + ' 이상 필요! 다시 도전하세요.';
+        gateMsg.classList.remove('hidden');
+      }
+      if (nextBtn) nextBtn.classList.add('hidden');
+    } else {
+      if (gateMsg) gateMsg.classList.add('hidden');
+      if (nextBtn) nextBtn.classList.remove('hidden');
     }
 
     // Animate scores counting up

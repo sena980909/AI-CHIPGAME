@@ -280,6 +280,99 @@ TeraFab.Engine = (function() {
     return heatMap;
   }
 
+  // ===== HELPER FUNCTIONS FOR OBJECTIVES =====
+
+  /** Check if ALL cells of typeA have at least one adjacent cell of typeB */
+  function allOfTypeHaveAdjacentType(grid, typeA, typeB) {
+    for (var r = 0; r < grid.length; r++) {
+      for (var c = 0; c < grid[r].length; c++) {
+        if (grid[r][c] === typeA) {
+          var found = false;
+          for (var d = 0; d < DIRS.length; d++) {
+            var nr = r + DIRS[d][0];
+            var nc = c + DIRS[d][1];
+            if (inBounds(grid, nr, nc) && grid[nr][nc] === typeB) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /** BFS distance from a specific cell (sr,sc) to nearest cell of targetType.
+   *  Returns number of hops, or Infinity if unreachable. */
+  function bfsDistanceFromCell(grid, sr, sc, targetType) {
+    var size = grid.length;
+    if (!inBounds(grid, sr, sc)) return Infinity;
+    if (grid[sr][sc] === targetType) return 0;
+
+    var visited = [];
+    for (var r = 0; r < size; r++) {
+      visited[r] = [];
+      for (var c = 0; c < size; c++) {
+        visited[r][c] = false;
+      }
+    }
+
+    var queue = [{row: sr, col: sc, dist: 0}];
+    visited[sr][sc] = true;
+
+    while (queue.length > 0) {
+      var cur = queue.shift();
+      for (var d = 0; d < DIRS.length; d++) {
+        var nr = cur.row + DIRS[d][0];
+        var nc = cur.col + DIRS[d][1];
+        if (inBounds(grid, nr, nc) && !visited[nr][nc] && grid[nr][nc]) {
+          if (grid[nr][nc] === targetType) return cur.dist + 1;
+          visited[nr][nc] = true;
+          queue.push({row: nr, col: nc, dist: cur.dist + 1});
+        }
+      }
+    }
+    return Infinity;
+  }
+
+  /** Count unique cells of adjType that are adjacent to any cell of centerType */
+  function countAdjacentToType(grid, centerType, adjType) {
+    var seen = {};
+    for (var r = 0; r < grid.length; r++) {
+      for (var c = 0; c < grid[r].length; c++) {
+        if (grid[r][c] === centerType) {
+          for (var d = 0; d < DIRS.length; d++) {
+            var nr = r + DIRS[d][0];
+            var nc = c + DIRS[d][1];
+            if (inBounds(grid, nr, nc) && grid[nr][nc] === adjType) {
+              seen[nr + ',' + nc] = true;
+            }
+          }
+        }
+      }
+    }
+    var count = 0;
+    for (var k in seen) count++;
+    return count;
+  }
+
+  /** Calculate total raw power consumption (for power_budget objectives) */
+  function calcTotalPower(grid) {
+    var cells = getPlacedCells(grid);
+    var dynamicPower = 0;
+    for (var i = 0; i < cells.length; i++) {
+      var comp = TeraFab.Components[cells[i].type];
+      if (comp) dynamicPower += comp.power;
+    }
+    var leakageCoeff = { T: 0.3, S: 0.6, N: 0.8, C: 0.2, R: 0.1 };
+    var staticPower = 0;
+    for (var j = 0; j < cells.length; j++) {
+      staticPower += leakageCoeff[cells[j].type] || 0.3;
+    }
+    return dynamicPower + staticPower;
+  }
+
   // ===== PPA CALCULATION =====
 
   /**
@@ -318,7 +411,7 @@ TeraFab.Engine = (function() {
     // I/O Controller ↔ SRAM: +5 per pair (memory-mapped I/O)
     synergy += countAdjPairs(grid, 'C', 'S') * 5;
 
-    var maxSynergy = size === 3 ? 40 : 100;
+    var maxSynergy = size * size * 4.5;
     score += Math.min(40, (synergy / maxSynergy) * 40);
 
     // 3. Connectivity / path efficiency — 30 points max
@@ -339,9 +432,9 @@ TeraFab.Engine = (function() {
 
       // 4. Critical path penalty — longer diameter = worse timing closure
       var diameter = maxBfsDistance(grid);
-      var maxAcceptable = size === 3 ? 4 : 8;
       if (diameter > 2) {
-        var critPenalty = Math.min(10, Math.max(0, diameter - 2) * (size === 3 ? 3 : 2));
+        var critPerHop = Math.max(1, 4 - Math.floor(size / 2));
+        var critPenalty = Math.min(10, Math.max(0, diameter - 2) * critPerHop);
         score -= critPenalty;
       }
     }
@@ -389,9 +482,8 @@ TeraFab.Engine = (function() {
     var totalPower = dynamicPower + staticPower + routingCap + heatPen;
 
     // Normalize: lower power = higher score
-    // Expected range: for 3x3 ~3-15, for 5x5 ~5-40
-    var maxExpected = size === 3 ? 20 : 50;
-    var minExpected = size === 3 ? 1 : 2;
+    var maxExpected = size * size * 2.2;
+    var minExpected = Math.max(1, Math.round(size * 0.4));
 
     // Score: 100 when power is at or below minExpected, 0 when at maxExpected
     var normalized = 1 - ((totalPower - minExpected) / (maxExpected - minExpected));
@@ -414,10 +506,9 @@ TeraFab.Engine = (function() {
     if (placed === 0) return 0;
 
     // 1. Utilization (50 points max)
-    // Realistic die utilization targets: 55-89% for 3x3, 48-76% for 5x5
     var utilRatio = placed / totalCells;
-    var optimalMin = size === 3 ? 0.55 : 0.48;
-    var optimalMax = size === 3 ? 0.89 : 0.76;
+    var optimalMin = Math.max(0.35, 0.70 - size * 0.05);
+    var optimalMax = Math.max(0.60, 1.04 - size * 0.05);
     var utilScore;
     if (utilRatio >= optimalMin && utilRatio <= optimalMax) {
       utilScore = 50;
@@ -633,6 +724,10 @@ TeraFab.Engine = (function() {
     countHeatPenalty: countHeatPenalty,
     maxBfsDistance: maxBfsDistance,
     getHeatMap: getHeatMap,
+    allOfTypeHaveAdjacentType: allOfTypeHaveAdjacentType,
+    bfsDistanceFromCell: bfsDistanceFromCell,
+    countAdjacentToType: countAdjacentToType,
+    calcTotalPower: calcTotalPower,
     calcPerformance: calcPerformance,
     calcPower: calcPower,
     calcArea: calcArea,

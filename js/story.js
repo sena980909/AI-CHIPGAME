@@ -99,7 +99,205 @@ TeraFab.Story = {
       {
         speaker: "CANON MARCO",
         portrait: "🛸",
-        text: "이 칩이면 충분해.\n차세대 AI를 돌릴 수 있는 프로세서...\n네가 만든 거야."
+        text: "하지만 아직 끝이 아니야.\n진짜 전쟁은 지금부터거든.\n\n다음 미션... 열관리라는 악마와 싸워야 해."
+      }
+    ],
+
+    // ===== LEVEL 3 BRIEFING =====
+    lv3_briefing: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🔥",
+        text: "세 번째 미션이다.\n4×4 그리드에 듀얼 NPU를 탑재한다."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🔥",
+        text: "두 개의 NPU가 대각선으로 고정되어 있어.\n이번 핵심은 열 관리(Thermal Management)야.\n\n활성 블록이 밀집하면 발열 패널티가 치솟거든.\n라우팅(R)을 열 차단벽으로 활용해야 해."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "⚡",
+        text: "목표:\n  • 각 NPU에 SRAM이 인접해야 해\n  • 발열 패널티 8 이하 유지\n  • 컨트롤러(C)는 가장자리에!\n\n칩이 녹지 않게 설계해봐. 시작!"
+      }
+    ],
+
+    // ===== LEVEL 3 COMPLETE =====
+    lv3_complete: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🎉",
+        text: "열 폭주 없이 듀얼 NPU를 살려냈어!\n꽤 실력이 늘었는데?"
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🛸",
+        text: "다음은 더 큰 스케일이다.\n6×6... 그리고 금지구역이 등장한다.\n실리콘 위에도 갈 수 없는 곳이 있거든."
+      }
+    ],
+
+    // ===== LEVEL 4 BRIEFING =====
+    lv4_briefing: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🚧",
+        text: "네 번째 미션. 6×6 멀티존 아키텍처다.\n이번엔 새로운 제약이 있어."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🚧",
+        text: "빨간 X 표시가 보이지?\n그건 금지구역 — 전력 배선이 지나가는 곳이야.\n절대 블록을 놓을 수 없어.\n\n우회해서 floorplan을 짜야 한다."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "⚡",
+        text: "그리고 새로운 도전:\nSRAM 대칭 배치가 필요해.\nNPU 클러스터 기준으로 상하 또는 좌우 대칭!\n\n메모리 대역폭의 균형이 핵심이지.\n자, 우회로를 찾아보자!"
+      }
+    ],
+
+    // ===== LEVEL 4 COMPLETE =====
+    lv4_complete: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🎉",
+        text: "금지구역을 뚫고 대칭까지 맞추다니!\n넌 진짜 설계사가 되어가고 있어."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🛸",
+        text: "다음은 7×7 풀 SoC... 본격적인 통합 설계야.\n\n여기까지 온 건 네가 처음이야.\n준비됐으면... 다음 전장으로!"
+      }
+    ],
+
+    // ===== LEVEL 5 BRIEFING =====
+    lv5_briefing: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🌟",
+        text: "다섯 번째 미션이다.\n7×7 풀 SoC(System-on-Chip)를 완성해라."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🌟",
+        text: "NPU 4개가 중앙에, 컨트롤러 4개가 십자 외곽에 고정.\n코너 4곳은 금지구역이야.\n\n이건 실제 반도체 설계와 거의 같은 조건이다.\nI/O 타이밍, 메모리 대역폭, 활용률...\n모든 것을 동시에 만족시켜야 해."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "😎",
+        text: "핵심 목표:\n  • 모든 C에서 T까지 3홉 이내 (I/O 타이밍)\n  • NPU 인접 SRAM 4개 이상 (메모리 대역폭)\n  • 활용률 40% 이상\n\n한 단계 더 올라가는 거야.\n나노미터 우주에서 실력을 증명해봐!"
+      }
+    ],
+
+    // ===== LEVEL 5 COMPLETE =====
+    lv5_complete: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🎉",
+        text: "해냈어...!!\n7×7 풀 SoC를 완성하다니!!"
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🛸",
+        text: "하지만 진짜 프로의 세계는 여기서부터야.\n더 큰 다이, 더 빡센 제약...\n\n8×8 전력 예산 설계가 기다리고 있다."
+      }
+    ],
+
+    // ===== LEVEL 6 BRIEFING =====
+    lv6_briefing: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "⚡",
+        text: "여섯 번째 미션이다.\n8×8 다이... 이번엔 전력 예산이 핵심이야."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "⚡",
+        text: "실제 칩 설계에서 가장 중요한 제약 중 하나:\n\"파워 버짓(Power Budget)\".\n\n총 전력 소비를 55 이하로 유지해야 해.\n블록을 마구 쌓으면 전력이 폭발하거든."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "😎",
+        text: "팁을 하나 주지:\n\n  NPU(2.5) > SRAM(1.5) > T(1.0) > C(0.8) > R(0.3)\n\n라우팅은 전력이 가장 낮아.\n효율적인 배치가 승부를 가른다. 시작!"
+      }
+    ],
+
+    // ===== LEVEL 6 COMPLETE =====
+    lv6_complete: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🎉",
+        text: "전력 예산 안에서 해냈어!\n효율적인 설계야, 감탄스럽다."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🛸",
+        text: "다음은 더 까다로워.\n크리티컬 패스... 신호 지연과의 싸움이다.\n\n모든 경로가 짧아야 칩이 빠르게 돌아가거든."
+      }
+    ],
+
+    // ===== LEVEL 7 BRIEFING =====
+    lv7_briefing: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🔮",
+        text: "일곱 번째 미션.\n같은 8×8지만 이번엔 완전히 다른 도전이야."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🔮",
+        text: "NPU가 상하로 분리되어 있어.\n그 사이를 어떻게 연결하느냐가 관건이지.\n\n새로운 제약: 크리티컬 패스(최대 경로)가\n8홉을 넘으면 안 돼. 타이밍 클로저 실패야."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "⚡",
+        text: "목표 정리:\n  • 코너의 C에서 T까지 3홉 이내\n  • 전체 크리티컬 패스 8홉 이하\n  • 활용률 40% 이상\n\n빠르고 밀도 높은 설계를 해봐. 파이팅!"
+      }
+    ],
+
+    // ===== LEVEL 7 COMPLETE =====
+    lv7_complete: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🎉",
+        text: "크리티컬 패스를 제어하다니...\n넌 이제 진짜 칩 아키텍트야."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🌟",
+        text: "마지막 미션이 남았다.\n9×9... \"최종 병기: 테라팹\".\n\n지금까지 배운 모든 것을 쏟아부어야 해.\n준비됐지?"
+      }
+    ],
+
+    // ===== LEVEL 8 BRIEFING =====
+    lv8_briefing: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🌟",
+        text: "최종 미션. \"최종 병기: 테라팹\".\n9×9 다이에 모든 메카닉이 총출동한다."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🌟",
+        text: "NPU 6개가 중앙에 밀집, C 4개가 십자 외곽,\nSRAM 2개가 미리 배치.\n코너와 그 주변은 금지구역이야.\n\n열 관리, 전력 예산, I/O 타이밍, 메모리 대역폭,\n활용률... 전부 동시에 만족시켜야 한다."
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "😎",
+        text: "10개의 목표. 이건 실제 반도체 설계와\n거의 같은 수준의 도전이야.\n\n나노미터 우주의 끝에서...\n전설을 만들 준비가 됐다면, 시작하자!"
+      }
+    ],
+
+    // ===== LEVEL 8 COMPLETE =====
+    lv8_complete: [
+      {
+        speaker: "CANON MARCO",
+        portrait: "🎉",
+        text: "해...해냈어...!!!\n9×9 궁극의 SoC를 완성했다!!"
+      },
+      {
+        speaker: "CANON MARCO",
+        portrait: "🌟",
+        text: "10개의 목표를 전부 달성하고\n이 괴물 같은 칩을 설계해낸 건...\n\n네가 이 은하 최초야."
       }
     ],
 
@@ -113,7 +311,7 @@ TeraFab.Story = {
       {
         speaker: "CANON MARCO",
         portrait: "🌟",
-        text: "넌 작은 로직 블록 하나에서 시작해서\nNPU 탑재 AI 프로세서를 완성했어.\n\n이게 바로 칩 설계의 로망이지.\n나노미터 세계에서 우주를 만드는 거."
+        text: "넌 3×3 로직 블록 하나에서 시작해서\n9×9 궁극의 SoC를 완성했어.\n\n열 관리, 금지구역, 전력 예산, 크리티컬 패스,\nI/O 타이밍, 메모리 대역폭...\n여덟 단계의 여정을 전부 돌파했지.\n\n이게 바로 칩 설계의 로망이야.\n나노미터 세계에서 우주를 만드는 거."
       },
       {
         speaker: "CANON MARCO",

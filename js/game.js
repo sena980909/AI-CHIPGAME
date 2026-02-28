@@ -57,6 +57,15 @@ TeraFab.Game = (function() {
     return false;
   }
 
+  function isBlocked(row, col) {
+    var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
+    if (!level.blocked) return false;
+    for (var i = 0; i < level.blocked.length; i++) {
+      if (level.blocked[i].row === row && level.blocked[i].col === col) return true;
+    }
+    return false;
+  }
+
   // ===== GAME FLOW =====
 
   function init() {
@@ -114,7 +123,7 @@ TeraFab.Game = (function() {
     Renderer.updateHUD(level);
     Renderer.buildGrid(level.gridSize, onCellClick);
     Renderer.buildToolbar(level.components, state.selectedTool, onToolSelect);
-    Renderer.updateGrid(state.grid, level.locked);
+    Renderer.updateGrid(state.grid, level.locked, level.blocked);
     Renderer.updateCompInfo(state.selectedTool);
 
     var evalResult = Engine.evaluate(state.grid, level);
@@ -161,7 +170,7 @@ TeraFab.Game = (function() {
     Renderer.updateHUD(level);
     Renderer.buildGrid(level.gridSize, onCellClick);
     Renderer.buildToolbar(level.components, state.selectedTool, onToolSelect);
-    Renderer.updateGrid(state.grid, level.locked);
+    Renderer.updateGrid(state.grid, level.locked, level.blocked);
     Renderer.updateCompInfo(state.selectedTool);
     refreshPPA();
 
@@ -218,19 +227,34 @@ TeraFab.Game = (function() {
     state.phase = 'EVALUATING';
     var evalResult = Engine.evaluate(state.grid, level);
 
+    // Check rank gate
+    var rankOrder = { S: 4, A: 3, B: 2, C: 1 };
+    var rankGated = false;
+    if (level.minRank && rankOrder[evalResult.rank] < rankOrder[level.minRank]) {
+      rankGated = true;
+    }
+
     state.levelResults.push({
       level: level.id,
-      result: evalResult
+      result: evalResult,
+      gated: rankGated
     });
 
     saveProgress();
 
     // Show result
-    Renderer.showResult(evalResult, level);
+    Renderer.showResult(evalResult, level, rankGated);
     state.phase = 'RESULTS';
   }
 
   function nextLevel() {
+    // Block if rank-gated
+    var lastResult = state.levelResults[state.levelResults.length - 1];
+    if (lastResult && lastResult.gated) {
+      Renderer.showToast('랭크가 부족합니다! RETRY로 다시 도전하세요.');
+      return;
+    }
+
     var lvIdx = state.currentLevel;
     var seqKey = 'lv' + (lvIdx + 1) + '_complete';
 
@@ -322,6 +346,7 @@ TeraFab.Game = (function() {
   function onCellClick(row, col) {
     if (state.phase !== 'PLAYING') return;
     if (isLocked(row, col)) return;
+    if (isBlocked(row, col)) return;
 
     // Tutorial guard
     if (state.tutorialActive && !Tutorial.canClickCell(row, col)) return;
@@ -352,7 +377,7 @@ TeraFab.Game = (function() {
     }
 
     var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
-    Renderer.updateGrid(state.grid, level.locked);
+    Renderer.updateGrid(state.grid, level.locked, level.blocked);
     refreshPPA();
     if (!state.tutorialActive) saveProgress();
 
@@ -383,7 +408,7 @@ TeraFab.Game = (function() {
 
     state.grid = state.undoStack.pop();
     var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
-    Renderer.updateGrid(state.grid, level.locked);
+    Renderer.updateGrid(state.grid, level.locked, level.blocked);
     refreshPPA();
     if (!state.tutorialActive) saveProgress();
   }
@@ -394,17 +419,17 @@ TeraFab.Game = (function() {
 
     var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
     state.undoStack.push(cloneGrid(state.grid));
-    state.grid = createGrid(level.gridSize);
 
-    // Re-place locked cells
-    if (level.locked) {
-      for (var i = 0; i < level.locked.length; i++) {
-        var lc = level.locked[i];
-        state.grid[lc.row][lc.col] = lc.type;
+    // Clear all cells except locked and blocked
+    for (var r = 0; r < state.grid.length; r++) {
+      for (var c = 0; c < state.grid[r].length; c++) {
+        if (!isLocked(r, c) && !isBlocked(r, c)) {
+          state.grid[r][c] = null;
+        }
       }
     }
 
-    Renderer.updateGrid(state.grid, level.locked);
+    Renderer.updateGrid(state.grid, level.locked, level.blocked);
     refreshPPA();
     saveProgress();
   }
@@ -627,11 +652,18 @@ TeraFab.Game = (function() {
         return;
       }
 
-      // Results continue
+      // Results continue / retry
       if (state.phase === 'RESULTS') {
         if (e.key === 'Enter') {
           e.preventDefault();
-          nextLevel();
+          var last = state.levelResults[state.levelResults.length - 1];
+          if (last && last.gated) {
+            // Rank gated — force retry
+            state.levelResults.pop();
+            startPlaying();
+          } else {
+            nextLevel();
+          }
         }
         return;
       }
@@ -722,7 +754,7 @@ TeraFab.Game = (function() {
       Renderer.updateHUD(level);
       Renderer.buildGrid(level.gridSize, onCellClick);
       Renderer.buildToolbar(level.components, state.selectedTool, onToolSelect);
-      Renderer.updateGrid(state.grid, level.locked);
+      Renderer.updateGrid(state.grid, level.locked, level.blocked);
       Renderer.updateCompInfo(state.selectedTool);
       refreshPPA();
     } else {
