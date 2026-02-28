@@ -4,7 +4,8 @@
       "WebSearch",
       "WebFetch(domain:mosartlabs.com)",
       "WebFetch(domain:semiengineering.com)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(gh repo:*)"
     ]
   }
 }

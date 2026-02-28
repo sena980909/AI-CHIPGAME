@@ -34,6 +34,7 @@
         <span class="hud-title" id="hud-title">기본 로직 설계</span>
       </div>
       <div class="hud-right">
+        <button class="hud-btn hint-btn" id="btn-hint">HINT [H]</button>
         <button class="hud-btn" id="btn-undo">UNDO [Z]</button>
         <button class="hud-btn" id="btn-clear">CLEAR</button>
         <button class="hud-btn primary" id="btn-submit">SUBMIT [Enter]</button>
@@ -52,6 +53,11 @@
       <div class="grid-area">
         <div class="grid-container" id="grid-container">
           <!-- Populated by renderer -->
+        </div>
+        <!-- Hint bar -->
+        <div class="hint-bar" id="hint-bar">
+          <div class="hint-icon">?</div>
+          <div class="hint-text" id="hint-text">힌트를 보려면 HINT 버튼을 누르세요</div>
         </div>
       </div>
 

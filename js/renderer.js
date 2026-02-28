@@ -341,6 +341,47 @@ TeraFab.Renderer = (function() {
     }
   }
 
+  // ===== Hint System =====
+
+  function showHint(text) {
+    var bar = document.getElementById('hint-bar');
+    var textEl = document.getElementById('hint-text');
+    if (!bar || !textEl) return;
+
+    bar.classList.add('active');
+    textEl.textContent = text;
+  }
+
+  function clearHintHighlights() {
+    var cells = document.querySelectorAll('.chip-grid td.hint-highlight');
+    for (var i = 0; i < cells.length; i++) {
+      cells[i].classList.remove('hint-highlight');
+    }
+  }
+
+  function highlightCells(positions) {
+    clearHintHighlights();
+    if (!positions || positions.length === 0) return;
+
+    for (var i = 0; i < positions.length; i++) {
+      var pos = positions[i];
+      var td = document.querySelector(
+        '.chip-grid td[data-row="' + pos.row + '"][data-col="' + pos.col + '"]'
+      );
+      if (td && !td.classList.contains('placed')) {
+        td.classList.add('hint-highlight');
+      }
+    }
+  }
+
+  function resetHintBar() {
+    var bar = document.getElementById('hint-bar');
+    var textEl = document.getElementById('hint-text');
+    if (bar) bar.classList.remove('active');
+    if (textEl) textEl.textContent = '힌트를 보려면 HINT 버튼을 누르세요 [H]';
+    clearHintHighlights();
+  }
+
   // ===== PUBLIC API =====
   return {
     showScreen: showScreen,
@@ -356,7 +397,11 @@ TeraFab.Renderer = (function() {
     showDialogue: showDialogue,
     advanceDialogue: advanceDialogue,
     showResult: showResult,
-    showVictory: showVictory
+    showVictory: showVictory,
+    showHint: showHint,
+    clearHintHighlights: clearHintHighlights,
+    highlightCells: highlightCells,
+    resetHintBar: resetHintBar
   };
 
 })();

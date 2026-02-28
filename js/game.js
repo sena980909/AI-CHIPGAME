@@ -116,6 +116,9 @@ TeraFab.Game = (function() {
     Renderer.updateCompInfo(state.selectedTool);
     refreshPPA();
 
+    // Auto-show first hint for beginners
+    setTimeout(function() { showHint(); }, 300);
+
     saveProgress();
   }
 
@@ -319,6 +322,43 @@ TeraFab.Game = (function() {
 
     var objResults = Engine.checkObjectives(state.grid, level);
     Renderer.updateObjectives(objResults);
+
+    // Clear hint highlights when grid changes
+    Renderer.clearHintHighlights();
+  }
+
+  // ===== HINT SYSTEM =====
+
+  function showHint() {
+    if (state.phase !== 'PLAYING') return;
+
+    var level = Levels[state.currentLevel];
+    if (!level.hints) return;
+
+    // Find the first matching hint
+    for (var i = 0; i < level.hints.length; i++) {
+      var hint = level.hints[i];
+      if (hint.condition(state.grid)) {
+        Renderer.showHint(hint.text);
+
+        // Get recommended cells
+        var recs = hint.recommend || [];
+        if (hint.recommendFn) {
+          recs = hint.recommendFn(state.grid);
+        }
+        if (recs.length > 0) {
+          Renderer.highlightCells(recs);
+          // Also auto-select the recommended tool
+          if (recs[0].type) {
+            onToolSelect(recs[0].type);
+          }
+        }
+        return;
+      }
+    }
+
+    // Fallback generic hint
+    Renderer.showHint("블록을 배치하고 오른쪽 목표(OBJECTIVES)를 모두 달성하면 SUBMIT!");
   }
 
   // ===== EVENT BINDING =====
@@ -337,6 +377,7 @@ TeraFab.Game = (function() {
     });
 
     // HUD buttons
+    document.getElementById('btn-hint').addEventListener('click', showHint);
     document.getElementById('btn-undo').addEventListener('click', undo);
     document.getElementById('btn-clear').addEventListener('click', clearGrid);
     document.getElementById('btn-submit').addEventListener('click', submitDesign);
@@ -398,6 +439,12 @@ TeraFab.Game = (function() {
       // E for eraser
       if (e.key === 'e' || e.key === 'E') {
         onToolSelect('ERASER');
+        return;
+      }
+
+      // H for hint
+      if (e.key === 'h' || e.key === 'H') {
+        showHint();
         return;
       }
 
