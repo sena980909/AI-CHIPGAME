@@ -174,8 +174,47 @@ TeraFab.Engine = (function() {
     return Infinity;
   }
 
+  /** Compute the graph diameter (longest shortest-path) among all placed cells.
+   *  This represents the critical path — longer = worse timing. */
+  function maxBfsDistance(grid) {
+    var cells = getPlacedCells(grid);
+    if (cells.length <= 1) return 0;
+
+    var size = grid.length;
+    var maxDist = 0;
+
+    // BFS from each placed cell
+    for (var s = 0; s < cells.length; s++) {
+      var visited = [];
+      for (var r = 0; r < size; r++) {
+        visited[r] = [];
+        for (var c = 0; c < size; c++) {
+          visited[r][c] = false;
+        }
+      }
+
+      var queue = [{row: cells[s].row, col: cells[s].col, dist: 0}];
+      visited[cells[s].row][cells[s].col] = true;
+
+      while (queue.length > 0) {
+        var cur = queue.shift();
+        if (cur.dist > maxDist) maxDist = cur.dist;
+        for (var d = 0; d < DIRS.length; d++) {
+          var nr = cur.row + DIRS[d][0];
+          var nc = cur.col + DIRS[d][1];
+          if (inBounds(grid, nr, nc) && !visited[nr][nc] && grid[nr][nc]) {
+            visited[nr][nc] = true;
+            queue.push({row: nr, col: nc, dist: cur.dist + 1});
+          }
+        }
+      }
+    }
+
+    return maxDist;
+  }
+
   /** Count thermal hotspots: groups of 3+ active (non-R) IP blocks in adjacent cluster.
-   *  Routing acts as thermal via — cells with R neighbor get penalty halved. */
+   *  Routing acts as thermal buffer zone — cells with R neighbor get penalty halved. */
   function countHeatPenalty(grid) {
     var size = grid.length;
     var penalty = 0;
@@ -200,7 +239,7 @@ TeraFab.Engine = (function() {
           // Penalty if 2+ active neighbors (makes 3+ cluster with self)
           if (activeNeighbors >= 2) {
             var pen = (activeNeighbors - 1) * 1;
-            // R acts as thermal via: halve penalty if routing is adjacent
+            // R acts as thermal buffer: halve penalty if routing is adjacent
             if (hasRoutingNeighbor) pen = Math.ceil(pen * 0.5);
             penalty += pen;
           }
@@ -208,6 +247,37 @@ TeraFab.Engine = (function() {
       }
     }
     return penalty;
+  }
+
+  /** Compute per-cell heat intensity (0-3 scale).
+   *  0 = cool (routing or isolated), 1 = warm, 2 = hot, 3 = critical */
+  function getHeatMap(grid) {
+    var size = grid.length;
+    var heatMap = [];
+    for (var r = 0; r < size; r++) {
+      heatMap[r] = [];
+      for (var c = 0; c < size; c++) {
+        if (!grid[r][c] || grid[r][c] === 'R') {
+          heatMap[r][c] = 0;
+          continue;
+        }
+        // Count active (non-R) neighbors
+        var activeNeighbors = 0;
+        for (var d = 0; d < DIRS.length; d++) {
+          var nr = r + DIRS[d][0];
+          var nc = c + DIRS[d][1];
+          if (inBounds(grid, nr, nc) && grid[nr][nc] && grid[nr][nc] !== 'R') {
+            activeNeighbors++;
+          }
+        }
+        // Heat level based on cluster density
+        if (activeNeighbors >= 3) heatMap[r][c] = 3;
+        else if (activeNeighbors >= 2) heatMap[r][c] = 2;
+        else if (activeNeighbors >= 1) heatMap[r][c] = 1;
+        else heatMap[r][c] = 0;
+      }
+    }
+    return heatMap;
   }
 
   // ===== PPA CALCULATION =====
@@ -266,6 +336,14 @@ TeraFab.Engine = (function() {
         if (distSN < Infinity) pathBonus += Math.max(0, 5 - distSN) * 3;
       }
       score += Math.min(15, pathBonus);
+
+      // 4. Critical path penalty — longer diameter = worse timing closure
+      var diameter = maxBfsDistance(grid);
+      var maxAcceptable = size === 3 ? 4 : 8;
+      if (diameter > 2) {
+        var critPenalty = Math.min(10, Math.max(0, diameter - 2) * (size === 3 ? 3 : 2));
+        score -= critPenalty;
+      }
     }
 
     return Math.min(100, Math.max(0, Math.round(score)));
@@ -293,8 +371,14 @@ TeraFab.Engine = (function() {
       if (comp) dynamicPower += comp.power;
     }
 
-    // Static power: baseline per filled cell
-    var staticPower = placed * 0.3;
+    // Static (leakage) power: varies by block type
+    // SRAM has highest leakage (many state-holding transistors)
+    // NPU has high leakage (dense logic), Logic moderate, I/O low, Routing minimal
+    var leakageCoeff = { T: 0.3, S: 0.6, N: 0.8, C: 0.2, R: 0.1 };
+    var staticPower = 0;
+    for (var j = 0; j < cells.length; j++) {
+      staticPower += leakageCoeff[cells[j].type] || 0.3;
+    }
 
     // Routing capacitance: each routing adjacent to another routing adds wire cap
     var routingCap = countAdjPairs(grid, 'R', 'R') * 0.5;
@@ -523,8 +607,8 @@ TeraFab.Engine = (function() {
       [null, null, 'R', null, null],
       [null, 'T',  'S', 'T',  null],
       ['R',  'S',  'N', 'C',  'R'],
-      [null, 'T',  'C', 'T',  null],
-      [null, null, 'R', null, null]
+      [null, 'T',  'R', 'T',  null],
+      [null, null, 'C', null, null]
     ];
     var eval5 = evaluate(g5, lv2);
     console.log('  Lv2 Result:', JSON.stringify(eval5));
@@ -547,6 +631,8 @@ TeraFab.Engine = (function() {
     countAdjPairs: countAdjPairs,
     bfsDistance: bfsDistance,
     countHeatPenalty: countHeatPenalty,
+    maxBfsDistance: maxBfsDistance,
+    getHeatMap: getHeatMap,
     calcPerformance: calcPerformance,
     calcPower: calcPower,
     calcArea: calcArea,

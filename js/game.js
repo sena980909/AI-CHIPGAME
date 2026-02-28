@@ -11,6 +11,7 @@ TeraFab.Game = (function() {
   var Renderer = TeraFab.Renderer;
   var Levels = TeraFab.Levels;
   var Story = TeraFab.Story;
+  var Tutorial = TeraFab.Tutorial;
 
   // ===== STATE =====
   var state = {
@@ -22,7 +23,8 @@ TeraFab.Game = (function() {
     dialogueQueue: [],
     dialogueIndex: 0,
     dialogueNextPhase: null,
-    levelResults: [] // store results for each completed level
+    levelResults: [], // store results for each completed level
+    tutorialActive: false
   };
 
   // ===== GRID MANAGEMENT =====
@@ -47,7 +49,7 @@ TeraFab.Game = (function() {
   }
 
   function isLocked(row, col) {
-    var level = Levels[state.currentLevel];
+    var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
     if (!level.locked) return false;
     for (var i = 0; i < level.locked.length; i++) {
       if (level.locked[i].row === row && level.locked[i].col === col) return true;
@@ -81,6 +83,50 @@ TeraFab.Game = (function() {
     state.currentLevel = 0;
     state.levelResults = [];
     playDialogue('intro', function() {
+      askTutorial();
+    });
+  }
+
+  function askTutorial() {
+    // Auto-skip if already completed
+    if (Tutorial.isDone()) {
+      startLevelBriefing();
+      return;
+    }
+
+    // Show tutorial choice screen
+    state.phase = 'TUTORIAL_CHOICE';
+    Renderer.showScreen('tutorial-choice-screen');
+  }
+
+  function startTutorial() {
+    state.tutorialActive = true;
+    var level = Tutorial.getLevel();
+
+    // Init grid for tutorial
+    state.grid = createGrid(level.gridSize);
+    state.undoStack = [];
+    state.selectedTool = null; // no pre-selection — tutorial will guide tool pick
+
+    // Render game screen with tutorial level
+    state.phase = 'PLAYING';
+    Renderer.showScreen('game-screen');
+    Renderer.updateHUD(level);
+    Renderer.buildGrid(level.gridSize, onCellClick);
+    Renderer.buildToolbar(level.components, state.selectedTool, onToolSelect);
+    Renderer.updateGrid(state.grid, level.locked);
+    Renderer.updateCompInfo(state.selectedTool);
+
+    var evalResult = Engine.evaluate(state.grid, level);
+    Renderer.updatePPA(evalResult, level);
+    var objResults = Engine.checkObjectives(state.grid, level);
+    Renderer.updateObjectives(objResults);
+
+    // Start tutorial steps
+    Tutorial.start(function() {
+      // Tutorial complete — transition to Lv1
+      state.tutorialActive = false;
+      Renderer.hideTutorialOverlay();
       startLevelBriefing();
     });
   }
@@ -127,6 +173,15 @@ TeraFab.Game = (function() {
 
   function submitDesign() {
     if (state.phase !== 'PLAYING') return;
+
+    // Tutorial guard
+    if (state.tutorialActive && !Tutorial.canSubmit()) return;
+
+    // Tutorial submit — skip result screen
+    if (state.tutorialActive) {
+      Tutorial.onSubmitted();
+      return;
+    }
 
     var level = Levels[state.currentLevel];
     var objResults = Engine.checkObjectives(state.grid, level);
@@ -217,8 +272,10 @@ TeraFab.Game = (function() {
 
   // ===== DIALOGUE SYSTEM =====
 
-  function playDialogue(sequenceKey, onComplete) {
-    var seq = Story.sequences[sequenceKey];
+  function playDialogue(sequenceKeyOrArray, onComplete) {
+    var seq = Array.isArray(sequenceKeyOrArray)
+      ? sequenceKeyOrArray
+      : Story.sequences[sequenceKeyOrArray];
     if (!seq || seq.length === 0) {
       if (onComplete) onComplete();
       return;
@@ -266,6 +323,9 @@ TeraFab.Game = (function() {
     if (state.phase !== 'PLAYING') return;
     if (isLocked(row, col)) return;
 
+    // Tutorial guard
+    if (state.tutorialActive && !Tutorial.canClickCell(row, col)) return;
+
     var tool = state.selectedTool;
     var currentValue = state.grid[row][col];
 
@@ -291,33 +351,48 @@ TeraFab.Game = (function() {
       state.undoStack.shift();
     }
 
-    var level = Levels[state.currentLevel];
+    var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
     Renderer.updateGrid(state.grid, level.locked);
     refreshPPA();
-    saveProgress();
+    if (!state.tutorialActive) saveProgress();
+
+    // Notify tutorial
+    if (state.tutorialActive) {
+      Tutorial.onCellPlaced(row, col, state.grid[row][col]);
+    }
   }
 
   function onToolSelect(type) {
+    // Tutorial guard
+    if (state.tutorialActive && !Tutorial.canSelectTool(type)) return;
+
     state.selectedTool = type;
     Renderer.updateToolbarSelection(type);
     Renderer.updateCompInfo(type);
+
+    // Notify tutorial
+    if (state.tutorialActive) {
+      Tutorial.onToolSelected(type);
+    }
   }
 
   function undo() {
     if (state.phase !== 'PLAYING') return;
+    if (state.tutorialActive && !Tutorial.canUndo()) return;
     if (state.undoStack.length === 0) return;
 
     state.grid = state.undoStack.pop();
-    var level = Levels[state.currentLevel];
+    var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
     Renderer.updateGrid(state.grid, level.locked);
     refreshPPA();
-    saveProgress();
+    if (!state.tutorialActive) saveProgress();
   }
 
   function clearGrid() {
     if (state.phase !== 'PLAYING') return;
+    if (state.tutorialActive && !Tutorial.canClear()) return;
 
-    var level = Levels[state.currentLevel];
+    var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
     state.undoStack.push(cloneGrid(state.grid));
     state.grid = createGrid(level.gridSize);
 
@@ -335,12 +410,16 @@ TeraFab.Game = (function() {
   }
 
   function refreshPPA() {
-    var level = Levels[state.currentLevel];
+    var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
     var evalResult = Engine.evaluate(state.grid, level);
     Renderer.updatePPA(evalResult, level);
 
     var objResults = Engine.checkObjectives(state.grid, level);
     Renderer.updateObjectives(objResults);
+
+    // Update heat map visualization
+    var heatMap = Engine.getHeatMap(state.grid);
+    Renderer.updateHeatMap(heatMap);
 
     // Auto-refresh hint when grid changes
     Renderer.clearHintHighlights();
@@ -349,6 +428,7 @@ TeraFab.Game = (function() {
 
   /** Silently update hint text (no highlight) when grid changes */
   function autoUpdateHint() {
+    if (state.tutorialActive) return; // tutorial manages its own hints
     var level = Levels[state.currentLevel];
     if (!level.hints) return;
     for (var i = 0; i < level.hints.length; i++) {
@@ -365,6 +445,7 @@ TeraFab.Game = (function() {
 
   function showHint() {
     if (state.phase !== 'PLAYING') return;
+    if (state.tutorialActive && !Tutorial.canShowHint()) return;
 
     var level = Levels[state.currentLevel];
     if (!level.hints) return;
@@ -493,9 +574,21 @@ TeraFab.Game = (function() {
       }
     });
 
+    // Tutorial choice buttons
+    document.getElementById('btn-tutorial-yes').addEventListener('click', function() {
+      if (state.phase === 'TUTORIAL_CHOICE') startTutorial();
+    });
+    document.getElementById('btn-tutorial-no').addEventListener('click', function() {
+      if (state.phase === 'TUTORIAL_CHOICE') {
+        localStorage.setItem('terafab_tutorial_done', '1');
+        startLevelBriefing();
+      }
+    });
+
     // Victory restart
     document.getElementById('btn-restart').addEventListener('click', function() {
       clearSave();
+      Tutorial.clearDone();
       state.phase = 'TITLE';
       state.currentLevel = 0;
       state.levelResults = [];
@@ -508,7 +601,16 @@ TeraFab.Game = (function() {
       if (state.phase === 'DIALOGUE') {
         if (e.key === 'Escape') {
           e.preventDefault();
-          skipAllDialogue();
+          if (state.tutorialActive) {
+            // Clear dialogue callbacks to prevent double-fire, then skip tutorial
+            Renderer.skipTyping();
+            state.dialogueQueue = [];
+            state.dialogueIndex = 0;
+            state.dialogueNextPhase = null;
+            Tutorial.skip();
+          } else {
+            skipAllDialogue();
+          }
         } else if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           Renderer.advanceDialogue();
@@ -536,7 +638,14 @@ TeraFab.Game = (function() {
 
       if (state.phase !== 'PLAYING') return;
 
-      var level = Levels[state.currentLevel];
+      // ESC to skip tutorial
+      if (state.tutorialActive && e.key === 'Escape') {
+        e.preventDefault();
+        Tutorial.skip();
+        return;
+      }
+
+      var level = state.tutorialActive ? Tutorial.getLevel() : Levels[state.currentLevel];
 
       // Number keys 1-5 for component selection
       var keyNum = parseInt(e.key);
@@ -624,6 +733,12 @@ TeraFab.Game = (function() {
 
   function clearSave() {
     try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+    Tutorial.clearDone();
+  }
+
+  /** Play a dialogue array directly (used by tutorial) */
+  function playTutorialDialogue(dialogueArray, onComplete) {
+    playDialogue(dialogueArray, onComplete);
   }
 
   // ===== INIT ON DOM READY =====
@@ -636,6 +751,7 @@ TeraFab.Game = (function() {
   // ===== PUBLIC API =====
   return {
     getState: function() { return state; },
+    playTutorialDialogue: playTutorialDialogue,
     restart: function() {
       clearSave();
       state.phase = 'TITLE';

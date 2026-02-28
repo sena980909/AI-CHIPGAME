@@ -221,7 +221,7 @@ TeraFab.Renderer = (function() {
   function updateHUD(level) {
     var hudLevel = document.getElementById('hud-level');
     var hudTitle = document.getElementById('hud-title');
-    if (hudLevel) hudLevel.textContent = 'Lv.' + level.id;
+    if (hudLevel) hudLevel.textContent = level.id === 0 ? 'TUTORIAL' : 'Lv.' + level.id;
     if (hudTitle) hudTitle.textContent = level.name;
   }
 
@@ -357,15 +357,19 @@ TeraFab.Renderer = (function() {
   // ===== Toast Notification =====
 
   var _toastTimer = null;
-  function showToast(text) {
+  function showToast(text, type) {
     var el = document.getElementById('toast');
     if (!el) return;
     if (_toastTimer) clearTimeout(_toastTimer);
     el.textContent = text;
+    el.classList.remove('success');
+    if (type === 'success') el.classList.add('success');
     el.classList.add('show');
+    var duration = type === 'success' ? 1500 : 3000;
     _toastTimer = setTimeout(function() {
       el.classList.remove('show');
-    }, 3000);
+      el.classList.remove('success');
+    }, duration);
   }
 
   // ===== Hint System =====
@@ -409,6 +413,149 @@ TeraFab.Renderer = (function() {
     clearHintHighlights();
   }
 
+  // ===== Heat Map Overlay =====
+
+  function updateHeatMap(heatMap) {
+    if (!heatMap) return;
+    for (var r = 0; r < heatMap.length; r++) {
+      for (var c = 0; c < heatMap[r].length; c++) {
+        var td = document.querySelector(
+          '.chip-grid td[data-row="' + r + '"][data-col="' + c + '"]'
+        );
+        if (!td) continue;
+        // Remove previous heat classes
+        td.classList.remove('heat-0', 'heat-1', 'heat-2', 'heat-3');
+        if (heatMap[r][c] > 0) {
+          td.classList.add('heat-' + heatMap[r][c]);
+        }
+      }
+    }
+  }
+
+  // ===== Tutorial Overlay =====
+
+  function setHudButtonEnabled(id, enabled) {
+    var btn = document.getElementById(id);
+    if (!btn) return;
+    if (enabled) {
+      btn.classList.remove('disabled');
+    } else {
+      btn.classList.add('disabled');
+    }
+  }
+
+  function showTutorialOverlay(config) {
+    var overlay = document.getElementById('tutorial-overlay');
+    var bubble = document.getElementById('tutorial-bubble');
+    var textEl = document.getElementById('tutorial-bubble-text');
+    var counter = document.getElementById('tutorial-step-counter');
+    var hintEl = document.getElementById('tutorial-bubble-hint');
+    var skipBtn = document.getElementById('btn-tutorial-skip');
+
+    if (!overlay || !bubble) return;
+
+    // Clear previous spotlights
+    _clearSpotlights();
+
+    overlay.classList.remove('hidden');
+
+    // Set bubble text
+    if (textEl) textEl.textContent = config.text || '';
+    if (counter) counter.textContent = 'STEP ' + config.stepNum + '/' + config.totalSteps;
+    if (hintEl) hintEl.textContent = config.clickToAdvance ? '[CLICK]' : '';
+
+    // Spotlight target
+    if (config.spotlight) {
+      _applySpotlight(config.spotlight);
+    }
+
+    // Bubble click handler
+    if (bubble._tutHandler) {
+      bubble.removeEventListener('click', bubble._tutHandler);
+    }
+    bubble._tutHandler = function(e) {
+      e.stopPropagation();
+      if (config.onBubbleClick) config.onBubbleClick();
+    };
+    bubble.addEventListener('click', bubble._tutHandler);
+
+    // Skip button handler
+    if (skipBtn) {
+      if (skipBtn._tutHandler) {
+        skipBtn.removeEventListener('click', skipBtn._tutHandler);
+      }
+      skipBtn._tutHandler = function(e) {
+        e.stopPropagation();
+        if (config.onSkip) config.onSkip();
+      };
+      skipBtn.addEventListener('click', skipBtn._tutHandler);
+    }
+
+    // Prevent overlay clicks from going through (except to spotlighted elements)
+    if (overlay._tutHandler) {
+      overlay.removeEventListener('click', overlay._tutHandler);
+    }
+    overlay._tutHandler = function(e) {
+      if (e.target === overlay) {
+        e.stopPropagation();
+      }
+    };
+    overlay.addEventListener('click', overlay._tutHandler);
+  }
+
+  function hideTutorialOverlay() {
+    var overlay = document.getElementById('tutorial-overlay');
+    if (overlay) overlay.classList.add('hidden');
+    _clearSpotlights();
+
+    // Re-enable all HUD buttons
+    setHudButtonEnabled('btn-hint', true);
+    setHudButtonEnabled('btn-undo', true);
+    setHudButtonEnabled('btn-clear', true);
+    setHudButtonEnabled('btn-submit', true);
+  }
+
+  function _clearSpotlights() {
+    var spots = document.querySelectorAll('.tutorial-interactable');
+    for (var i = 0; i < spots.length; i++) {
+      spots[i].classList.remove('tutorial-interactable');
+    }
+  }
+
+  function _applySpotlight(target) {
+    if (target === 'grid') {
+      var grid = document.getElementById('grid-container');
+      if (grid) grid.classList.add('tutorial-interactable');
+    } else if (target === 'toolbar') {
+      var toolbar = document.getElementById('toolbar');
+      if (toolbar) toolbar.classList.add('tutorial-interactable');
+    } else if (target === 'ppa') {
+      // Spotlight the PPA section (first panel-section in info-panel)
+      var panels = document.querySelectorAll('.info-panel .panel-section');
+      if (panels.length > 0) panels[0].classList.add('tutorial-interactable');
+    } else if (target === 'objectives') {
+      var panels2 = document.querySelectorAll('.info-panel .panel-section');
+      if (panels2.length > 1) panels2[1].classList.add('tutorial-interactable');
+    } else if (target === 'submit') {
+      var btn = document.getElementById('btn-submit');
+      if (btn) btn.classList.add('tutorial-interactable');
+    } else if (target === 'cell_1_1') {
+      var td = document.querySelector('.chip-grid td[data-row="1"][data-col="1"]');
+      if (td) td.classList.add('tutorial-interactable');
+    } else if (target === 'adjacent_cells') {
+      // Spotlight cells adjacent to center (1,1)
+      var adjCoords = [[0,1],[1,0],[1,2],[2,1]];
+      for (var i = 0; i < adjCoords.length; i++) {
+        var cell = document.querySelector(
+          '.chip-grid td[data-row="' + adjCoords[i][0] + '"][data-col="' + adjCoords[i][1] + '"]'
+        );
+        if (cell && !cell.classList.contains('placed')) {
+          cell.classList.add('tutorial-interactable');
+        }
+      }
+    }
+  }
+
   // ===== PUBLIC API =====
   return {
     showScreen: showScreen,
@@ -430,7 +577,11 @@ TeraFab.Renderer = (function() {
     showHint: showHint,
     clearHintHighlights: clearHintHighlights,
     highlightCells: highlightCells,
-    resetHintBar: resetHintBar
+    resetHintBar: resetHintBar,
+    updateHeatMap: updateHeatMap,
+    setHudButtonEnabled: setHudButtonEnabled,
+    showTutorialOverlay: showTutorialOverlay,
+    hideTutorialOverlay: hideTutorialOverlay
   };
 
 })();

@@ -13,27 +13,17 @@ TeraFab.Story = {
       {
         speaker: "CANON MARCO",
         portrait: "🛸",
-        text: "자, 드디어 왔군.\n이 광활한 실리콘 우주에 발을 내딛은 걸 환영한다!"
+        text: "환영한다, 신입 설계사!\n나는 캐논 마르코, 반도체 은하의 수석 설계사이자\n네 미션을 이끌어줄 가이드야."
       },
       {
         speaker: "CANON MARCO",
         portrait: "🛸",
-        text: "나는 캐논 마르코.\n반도체 은하의 수석 설계사이자,\n네 미션을 이끌어줄 가이드다."
+        text: "\"오퍼레이션 테라팹\"...\n차세대 AI 칩을 설계하는 극비 작전이지.\n\n네가 할 일은 칩 위에 컴포넌트를 배치하고\n최고의 PPA를 뽑아내는 거야.\nPerformance, Power, Area — 이 세 가지의 균형이 핵심!"
       },
       {
         speaker: "CANON MARCO",
-        portrait: "🛸",
-        text: "\"오퍼레이션 테라팹\"...\n차세대 AI 칩을 설계하는 극비 작전이지.\n실패하면? 음, 그건 생각하지 말자."
-      },
-      {
-        speaker: "CANON MARCO",
-        portrait: "🛸",
-        text: "네가 할 일은 간단해.\n칩 위에 컴포넌트를 배치하고,\n최고의 PPA를 뽑아내는 거야.\n\nPPA? Performance, Power, Area.\n성능은 높이고, 전력은 줄이고, 면적은 효율적으로!"
-      },
-      {
-        speaker: "CANON MARCO",
-        portrait: "🛸",
-        text: "각 부품은 서로 영향을 주거든.\n가까이 두면 시너지가 나고,\n너무 밀집하면 열이 폭발하지.\n\n마치 우주선 안에 엔진을 쑤셔넣는 것처럼... 균형이 핵심이야."
+        portrait: "😎",
+        text: "부품을 가까이 두면 시너지가 나고,\n너무 밀집하면 열이 폭발하지.\n마치 우주선에 엔진을 쑤셔넣는 것처럼...\n\n자, 준비됐으면 시작해볼까?"
       }
     ],
 
@@ -47,7 +37,7 @@ TeraFab.Story = {
       {
         speaker: "CANON MARCO",
         portrait: "⚡",
-        text: "사용할 수 있는 IP 블록은 세 가지:\n\n  [T] 로직 블록 — 수백만 트랜지스터가 담긴 연산의 심장\n  [C] 컨트롤러 — 데이터 입출력을 조율하는 버스\n  [R] 라우팅 — 배선, 블록 간 데이터의 고속도로"
+        text: "사용할 수 있는 IP 블록은 세 가지:\n\n  [T] 로직 블록 — 수십억 트랜지스터가 담긴 연산의 심장\n  [C] 컨트롤러 — 데이터 입출력을 조율하는 버스\n  [R] 라우팅 — 배선, 블록 간 데이터의 고속도로"
       },
       {
         speaker: "CANON MARCO",
@@ -90,7 +80,7 @@ TeraFab.Story = {
       {
         speaker: "CANON MARCO",
         portrait: "⚡",
-        text: "핵심 시너지를 알려주지:\n\n  SRAM ↔ NPU 인접: on-chip bandwidth 극대화! +20\n  로직 블록 ↔ 라우팅: 데이터 경로 최적화! +10\n\n하지만 활성 블록이 3개 이상 밀집하면\nthermal hotspot 발생... 발열 패널티! 주의해!"
+        text: "핵심 시너지를 알려주지:\n\n  SRAM ↔ NPU 인접: on-chip bandwidth 극대화! +20\n  로직 블록 ↔ 라우팅: 데이터 경로 최적화! +10\n\n그리고 I/O 컨트롤러는 다이 가장자리에 놓아야 해.\n실제 칩에서도 I/O pad는 항상 외곽이거든.\n\n활성 블록이 3개 이상 밀집하면\nthermal hotspot 발생... 발열 패널티! 주의해!"
       },
       {
         speaker: "CANON MARCO",

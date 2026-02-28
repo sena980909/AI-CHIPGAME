@@ -208,6 +208,21 @@ TeraFab.Levels = [
         }
       },
       {
+        id: 'io_edge',
+        desc: '컨트롤러(C) 1개 이상 가장자리 배치',
+        check: function(grid) {
+          var size = grid.length;
+          for (var r = 0; r < size; r++) {
+            for (var c = 0; c < size; c++) {
+              if (grid[r][c] === 'C' && (r === 0 || r === size - 1 || c === 0 || c === size - 1)) {
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+      },
+      {
         id: 'connected',
         desc: '모든 컴포넌트가 연결됨',
         check: function(grid) {
@@ -215,7 +230,7 @@ TeraFab.Levels = [
         }
       }
     ],
-    _sRankHint: "Dense layout around NPU center with SRAM adjacent",
+    _sRankHint: "Dense layout around NPU center with SRAM adjacent, C on edges",
     // Step-by-step beginner hints
     hints: [
       {
@@ -260,6 +275,20 @@ TeraFab.Levels = [
       },
       {
         condition: function(grid) {
+          if (TeraFab.Engine.countType(grid, 'C') === 0) return false;
+          var size = grid.length;
+          for (var r = 0; r < size; r++) {
+            for (var c = 0; c < size; c++) {
+              if (grid[r][c] === 'C' && (r === 0 || r === size-1 || c === 0 || c === size-1)) return false;
+            }
+          }
+          return true; // has C but none on edge
+        },
+        text: "컨트롤러(C)가 내부에 있어요! 실제 칩처럼 I/O는 다이 가장자리(행/열 0 또는 4)에 놓아야 합니다.",
+        recommend: []
+      },
+      {
+        condition: function(grid) {
           return !TeraFab.Engine.isConnected(grid) && TeraFab.Engine.countPlaced(grid) >= 3;
         },
         text: "블록들이 떨어져 있어요! 모든 블록이 상하좌우로 이어져야 합니다. 라우팅(R)으로 연결하세요.",
@@ -283,7 +312,7 @@ TeraFab.Components = {
     nameEn: 'Logic Block',
     key: 'T',
     color: '#00c853',
-    desc: '수백만 트랜지스터로 구성된 연산 IP 블록. 데이터를 처리하는 핵심 단위.',
+    desc: '수십억 트랜지스터로 구성된 연산 IP 블록. 데이터를 처리하는 핵심 단위.',
     power: 1.0,
     perf: 1.0
   },
@@ -319,8 +348,8 @@ TeraFab.Components = {
     nameEn: 'Routing',
     key: 'R',
     color: '#00bcd4',
-    desc: '배선 경로. 컴포넌트 간 데이터 전달.',
+    desc: '배선 경로. 컴포넌트 간 데이터를 전달하는 인터커넥트.',
     power: 0.3,
-    perf: 0.5
+    perf: 0.0
   }
 };

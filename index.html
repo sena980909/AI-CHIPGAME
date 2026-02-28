@@ -28,8 +28,33 @@
     </div>
   </div>
 
+  <!-- ===== TUTORIAL CHOICE (shown after intro dialogue) ===== -->
+  <div id="tutorial-choice-screen" class="screen">
+    <div class="dialogue-box" style="text-align:center;">
+      <div class="dialogue-portrait">🛸</div>
+      <div class="dialogue-speaker">CANON MARCO</div>
+      <div class="dialogue-text" style="min-height:60px;">기본 조작을 배우고 싶으면 튜토리얼을 해봐!<br>이미 알고 있다면 바로 미션 시작이다.</div>
+      <div style="display:flex;gap:15px;justify-content:center;margin-top:24px;">
+        <button class="tutorial-choice" id="btn-tutorial-yes">튜토리얼 시작</button>
+        <button class="tutorial-choice skip" id="btn-tutorial-no">건너뛰기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== GAME SCREEN ===== -->
   <div id="game-screen" class="screen">
+    <!-- Tutorial Overlay -->
+    <div class="tutorial-overlay hidden" id="tutorial-overlay">
+      <div class="tutorial-bubble" id="tutorial-bubble">
+        <div class="tutorial-bubble-text" id="tutorial-bubble-text"></div>
+        <div class="tutorial-bubble-footer">
+          <span class="tutorial-step-counter" id="tutorial-step-counter"></span>
+          <span class="tutorial-bubble-hint" id="tutorial-bubble-hint"></span>
+          <button class="tutorial-skip-btn" id="btn-tutorial-skip">건너뛰기 [ESC]</button>
+        </div>
+      </div>
+    </div>
+
     <!-- HUD -->
     <div class="hud">
       <div class="hud-left">
@@ -80,7 +105,7 @@
           </div>
           <div class="ppa-bar-group">
             <div class="ppa-bar-header">
-              <span class="ppa-bar-label">Power</span>
+              <span class="ppa-bar-label">Power Eff.</span>
               <span class="ppa-bar-value" id="ppa-power-val">0</span>
             </div>
             <div class="ppa-bar-track">
@@ -131,7 +156,7 @@
         <div class="result-score-value" id="res-perf">0</div>
       </div>
       <div class="result-score-item">
-        <div class="result-score-label">POWER</div>
+        <div class="result-score-label">POWER EFF.</div>
         <div class="result-score-value" id="res-power">0</div>
       </div>
       <div class="result-score-item">
@@ -172,6 +197,7 @@
   <script src="js/story.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/renderer.js"></script>
+  <script src="js/tutorial.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>
