@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operation Tera-Fab</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===== TITLE SCREEN ===== -->
+  <div id="title-screen" class="screen active">
+    <div class="title-logo">OPERATION<br>TERA-FAB</div>
+    <div class="title-sub">AI CHIP DESIGN SIMULATION</div>
+    <button class="title-start" id="btn-start">PRESS TO START</button>
+  </div>
+
+  <!-- ===== DIALOGUE SCREEN ===== -->
+  <div id="dialogue-screen" class="screen">
+    <div class="dialogue-box">
+      <div class="dialogue-portrait" id="dialogue-portrait"></div>
+      <div class="dialogue-speaker" id="dialogue-speaker"></div>
+      <div class="dialogue-text" id="dialogue-text"></div>
+      <div class="dialogue-continue">[CLICK / ENTER]</div>
+    </div>
+  </div>
+
+  <!-- ===== GAME SCREEN ===== -->
+  <div id="game-screen" class="screen">
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud-left">
+        <span class="hud-level" id="hud-level">Lv.1</span>
+        <span class="hud-title" id="hud-title">기본 로직 설계</span>
+      </div>
+      <div class="hud-right">
+        <button class="hud-btn" id="btn-undo">UNDO [Z]</button>
+        <button class="hud-btn" id="btn-clear">CLEAR</button>
+        <button class="hud-btn primary" id="btn-submit">SUBMIT [Enter]</button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="game-body">
+      <!-- Toolbar -->
+      <div class="toolbar" id="toolbar">
+        <div class="toolbar-title">COMPONENTS</div>
+        <!-- Populated by renderer -->
+      </div>
+
+      <!-- Grid -->
+      <div class="grid-area">
+        <div class="grid-container" id="grid-container">
+          <!-- Populated by renderer -->
+        </div>
+      </div>
+
+      <!-- Info Panel -->
+      <div class="info-panel">
+        <!-- PPA -->
+        <div class="panel-section">
+          <div class="panel-title">PPA METRICS</div>
+          <div class="ppa-bar-group">
+            <div class="ppa-bar-header">
+              <span class="ppa-bar-label">Performance</span>
+              <span class="ppa-bar-value" id="ppa-perf-val">0</span>
+            </div>
+            <div class="ppa-bar-track">
+              <div class="ppa-bar-fill perf" id="ppa-perf-bar"></div>
+            </div>
+          </div>
+          <div class="ppa-bar-group">
+            <div class="ppa-bar-header">
+              <span class="ppa-bar-label">Power</span>
+              <span class="ppa-bar-value" id="ppa-power-val">0</span>
+            </div>
+            <div class="ppa-bar-track">
+              <div class="ppa-bar-fill power" id="ppa-power-bar"></div>
+            </div>
+          </div>
+          <div class="ppa-bar-group">
+            <div class="ppa-bar-header">
+              <span class="ppa-bar-label">Area</span>
+              <span class="ppa-bar-value" id="ppa-area-val">0</span>
+            </div>
+            <div class="ppa-bar-track">
+              <div class="ppa-bar-fill area" id="ppa-area-bar"></div>
+            </div>
+          </div>
+          <div class="ppa-total">
+            <span class="ppa-total-label">TOTAL</span>
+            <span class="ppa-total-value" id="ppa-total-val">0</span>
+          </div>
+        </div>
+
+        <!-- Objectives -->
+        <div class="panel-section">
+          <div class="panel-title">OBJECTIVES</div>
+          <ul class="obj-list" id="obj-list">
+            <!-- Populated by renderer -->
+          </ul>
+        </div>
+
+        <!-- Component Info -->
+        <div class="panel-section">
+          <div class="panel-title">SELECTED</div>
+          <div class="comp-info" id="comp-info">
+            컴포넌트를 선택하세요
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RESULT SCREEN ===== -->
+  <div id="result-screen" class="screen">
+    <div class="result-title" id="result-title">EVALUATION COMPLETE</div>
+    <div class="result-rank" id="result-rank">S</div>
+    <div class="result-scores" id="result-scores">
+      <div class="result-score-item">
+        <div class="result-score-label">PERFORMANCE</div>
+        <div class="result-score-value" id="res-perf">0</div>
+      </div>
+      <div class="result-score-item">
+        <div class="result-score-label">POWER</div>
+        <div class="result-score-value" id="res-power">0</div>
+      </div>
+      <div class="result-score-item">
+        <div class="result-score-label">AREA</div>
+        <div class="result-score-value" id="res-area">0</div>
+      </div>
+    </div>
+    <div class="result-total">TOTAL: <span id="res-total">0</span></div>
+    <button class="result-btn" id="btn-next-level">CONTINUE</button>
+  </div>
+
+  <!-- ===== VICTORY SCREEN ===== -->
+  <div id="victory-screen" class="screen">
+    <div class="victory-title">MISSION COMPLETE</div>
+    <div class="victory-sub">Operation Tera-Fab 성공</div>
+    <div class="victory-stats" id="victory-stats"></div>
+    <button class="result-btn" id="btn-restart">RESTART</button>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/levels.js"></script>
+  <script src="js/story.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
