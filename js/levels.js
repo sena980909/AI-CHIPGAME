@@ -9,7 +9,7 @@ TeraFab.Levels = [
   {
     id: 1,
     name: "기본 로직 설계",
-    subtitle: "트랜지스터 배치의 기초",
+    subtitle: "로직 블록 배치의 기초",
     gridSize: 3,
     // Available component types for this level
     components: ['T', 'C', 'R'],
@@ -23,14 +23,14 @@ TeraFab.Levels = [
     objectives: [
       {
         id: 'min_T',
-        desc: '트랜지스터(T) 2개 이상 배치',
+        desc: '로직 블록(T) 2개 이상 배치',
         check: function(grid) {
           return TeraFab.Engine.countType(grid, 'T') >= 2;
         }
       },
       {
         id: 'min_C',
-        desc: '캐시(C) 1개 이상 배치',
+        desc: '컨트롤러(C) 1개 이상 배치',
         check: function(grid) {
           return TeraFab.Engine.countType(grid, 'C') >= 1;
         }
@@ -43,6 +43,13 @@ TeraFab.Levels = [
         }
       },
       {
+        id: 'adj_TR',
+        desc: '로직 블록(T)과 라우팅(R)이 인접해야 함',
+        check: function(grid) {
+          return TeraFab.Engine.hasAdjacentType(grid, 'T', 'R');
+        }
+      },
+      {
         id: 'connected',
         desc: '모든 컴포넌트가 연결됨',
         check: function(grid) {
@@ -51,7 +58,7 @@ TeraFab.Levels = [
       }
     ],
     // Hint for S-rank layout (for testing)
-    _sRankHint: "T-C-T / R-_-_ / _-_-_ or similar compact layout"
+    _sRankHint: "T-C-T / R-T-_ / _-_-_ compact + T↔R adjacent"
   },
 
   // ===== LEVEL 2: 5x5, Full Components =====
@@ -70,7 +77,7 @@ TeraFab.Levels = [
     objectives: [
       {
         id: 'min_T',
-        desc: '트랜지스터(T) 4개 이상 배치',
+        desc: '로직 블록(T) 4개 이상 배치',
         check: function(grid) {
           return TeraFab.Engine.countType(grid, 'T') >= 4;
         }
@@ -84,7 +91,7 @@ TeraFab.Levels = [
       },
       {
         id: 'min_C',
-        desc: '캐시(C) 2개 이상 배치',
+        desc: '컨트롤러(C) 2개 이상 배치',
         check: function(grid) {
           return TeraFab.Engine.countType(grid, 'C') >= 2;
         }
@@ -118,11 +125,11 @@ TeraFab.Levels = [
 // Component metadata
 TeraFab.Components = {
   T: {
-    name: '트랜지스터',
-    nameEn: 'Transistor',
+    name: '로직 블록',
+    nameEn: 'Logic Block',
     key: 'T',
     color: '#00c853',
-    desc: '기본 연산 소자. 데이터를 처리하는 핵심 단위.',
+    desc: '수백만 트랜지스터로 구성된 연산 IP 블록. 데이터를 처리하는 핵심 단위.',
     power: 1.0,
     perf: 1.0
   },
@@ -145,11 +152,11 @@ TeraFab.Components = {
     perf: 2.0
   },
   C: {
-    name: '캐시',
-    nameEn: 'Cache',
+    name: '컨트롤러',
+    nameEn: 'I/O Controller',
     key: 'C',
     color: '#ff6d00',
-    desc: '데이터 버퍼. 트랜지스터와 인접하면 효율적.',
+    desc: '외부 인터페이스 관리. 데이터 입출력을 조율하는 버스 컨트롤러.',
     power: 0.8,
     perf: 0.8
   },

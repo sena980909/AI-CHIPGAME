@@ -42,22 +42,22 @@ TeraFab.Story = {
       {
         speaker: "CANON MARCO",
         portrait: "⚡",
-        text: "좋아, 첫 번째 미션이다.\n3×3 칩에 기본 로직을 설계해봐."
+        text: "좋아, 첫 번째 미션이다.\n3×3 다이 위에 기본 로직을 설계해봐."
       },
       {
         speaker: "CANON MARCO",
         portrait: "⚡",
-        text: "사용할 수 있는 부품은 세 가지:\n\n  [T] 트랜지스터 — 연산의 심장\n  [C] 캐시 — 데이터를 잠시 붙잡아두는 녀석\n  [R] 라우팅 — 배선, 데이터의 고속도로"
+        text: "사용할 수 있는 IP 블록은 세 가지:\n\n  [T] 로직 블록 — 수백만 트랜지스터가 담긴 연산의 심장\n  [C] 컨트롤러 — 데이터 입출력을 조율하는 버스\n  [R] 라우팅 — 배선, 블록 간 데이터의 고속도로"
       },
       {
         speaker: "CANON MARCO",
         portrait: "⚡",
-        text: "트랜지스터와 라우팅이 붙어있으면\n데이터가 쏜살같이 흐르지. +10 보너스!\n\n그리고 부품들은 반드시 서로 연결되어야 해.\n외톨이 부품은 칩을 망친다고."
+        text: "로직 블록과 라우팅이 붙어있으면\n데이터가 쏜살같이 흐르지. +10 보너스!\n\n그리고 모든 블록은 반드시 서로 연결되어야 해.\nfloorplan에서 고립된 블록은 칩을 망친다고."
       },
       {
         speaker: "CANON MARCO",
         portrait: "😎",
-        text: "별처럼 배치해봐.\n핵심은 가운데, 배선은 가장자리.\n\n준비됐으면... 시작하자!"
+        text: "실제 칩 설계처럼 생각해봐.\n연산은 가운데, 배선은 블록 사이에.\n로직과 라우팅이 반드시 맞닿아야 해!\n\n준비됐으면... floorplanning 시작이다!"
       }
     ],
 
@@ -85,17 +85,17 @@ TeraFab.Story = {
       {
         speaker: "CANON MARCO",
         portrait: "🔮",
-        text: "새로운 부품들을 소개하지:\n\n  [S] SRAM — 고속 메모리, NPU의 절친\n  [N] NPU — 신경처리장치, AI의 두뇌\n\n NPU는 이미 중앙에 고정되어 있어.\n그 주위를 어떻게 설계하느냐가 관건이야."
+        text: "새로운 IP 블록들을 소개하지:\n\n  [S] SRAM — 고속 온칩 메모리, NPU의 절친\n  [N] NPU — 신경처리장치, AI 추론의 두뇌\n\n NPU는 이미 다이 중앙에 고정되어 있어.\n그 주위를 어떻게 floorplan하느냐가 관건이야."
       },
       {
         speaker: "CANON MARCO",
         portrait: "⚡",
-        text: "핵심 시너지를 알려주지:\n\n  SRAM ↔ NPU 인접: +20 성능 보너스!\n  트랜지스터 ↔ 라우팅: +10 보너스\n\n하지만 활성 부품이 3개 이상 뭉치면\n발열 패널티가 발생해. 주의해!"
+        text: "핵심 시너지를 알려주지:\n\n  SRAM ↔ NPU 인접: on-chip bandwidth 극대화! +20\n  로직 블록 ↔ 라우팅: 데이터 경로 최적화! +10\n\n하지만 활성 블록이 3개 이상 밀집하면\nthermal hotspot 발생... 발열 패널티! 주의해!"
       },
       {
         speaker: "CANON MARCO",
         portrait: "😎",
-        text: "이건 마치 블랙홀 주변에 우주정거장을\n건설하는 것과 같아.\n\nNPU라는 중력의 중심을 살리면서,\n전체 밸런스를 잡아야 해.\n\n가보자고!"
+        text: "이건 마치 블랙홀 주변에 우주정거장을\n건설하는 것과 같아.\n\nNPU라는 중력의 중심을 살리면서,\nPPA 밸런스를 잡아야 해.\ndie utilization도 신경 써!\n\n가보자고!"
       }
     ],
 
@@ -123,7 +123,7 @@ TeraFab.Story = {
       {
         speaker: "CANON MARCO",
         portrait: "🌟",
-        text: "넌 트랜지스터 하나에서 시작해서\nAI 프로세서를 완성했어.\n\n이게 바로 반도체 설계의 로망이지.\n나노미터 세계에서 우주를 만드는 거."
+        text: "넌 작은 로직 블록 하나에서 시작해서\nNPU 탑재 AI 프로세서를 완성했어.\n\n이게 바로 칩 설계의 로망이지.\n나노미터 세계에서 우주를 만드는 거."
       },
       {
         speaker: "CANON MARCO",

@@ -174,7 +174,7 @@ TeraFab.Engine = (function() {
     return Infinity;
   }
 
-  /** Count heat clusters: groups of 3+ active (non-R) components in adjacent cluster */
+  /** Count thermal hotspots: groups of 3+ active (non-R) IP blocks in adjacent cluster */
   function countHeatPenalty(grid) {
     var size = grid.length;
     var penalty = 0;
@@ -230,13 +230,13 @@ TeraFab.Engine = (function() {
 
     // 2. Adjacency synergy bonuses — 40 points max
     var synergy = 0;
-    // SRAM ↔ NPU: +20 per pair
+    // SRAM ↔ NPU: +20 per pair (on-chip bandwidth maximization)
     synergy += countAdjPairs(grid, 'S', 'N') * 20;
-    // Transistor ↔ Routing: +10 per pair
+    // Logic Block ↔ Routing: +10 per pair (data path optimization)
     synergy += countAdjPairs(grid, 'T', 'R') * 10;
-    // Cache ↔ Transistor: +5 per pair
+    // I/O Controller ↔ Logic Block: +5 per pair (bus interface)
     synergy += countAdjPairs(grid, 'C', 'T') * 5;
-    // Cache ↔ SRAM: +5 per pair
+    // I/O Controller ↔ SRAM: +5 per pair (memory-mapped I/O)
     synergy += countAdjPairs(grid, 'C', 'S') * 5;
 
     var maxSynergy = size === 3 ? 40 : 100;
@@ -321,10 +321,10 @@ TeraFab.Engine = (function() {
     if (placed === 0) return 0;
 
     // 1. Utilization (50 points max)
-    // Sweet spot: 40-70% utilization for 3x3, 35-65% for 5x5
+    // Realistic die utilization targets: 55-89% for 3x3, 48-76% for 5x5
     var utilRatio = placed / totalCells;
-    var optimalMin = size === 3 ? 0.40 : 0.35;
-    var optimalMax = size === 3 ? 0.78 : 0.65;
+    var optimalMin = size === 3 ? 0.55 : 0.48;
+    var optimalMax = size === 3 ? 0.89 : 0.76;
     var utilScore;
     if (utilRatio >= optimalMin && utilRatio <= optimalMax) {
       utilScore = 50;
