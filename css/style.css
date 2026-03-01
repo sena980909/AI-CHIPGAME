@@ -1109,6 +1109,8 @@ body::after {
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
 /* ===== Responsive ===== */
+
+/* -- Tablet -- */
 @media (max-width: 900px) {
   .toolbar { width: 140px; padding: 10px; }
   .info-panel { width: 200px; padding: 10px; }
@@ -1120,4 +1122,247 @@ body::after {
   .chip-grid.size-9 td { width: 36px; height: 36px; font-size: 0.4rem; }
   .chip-grid.size-9 td .cell-label { font-size: 0.55rem; }
   .title-logo { font-size: 2rem; }
+}
+
+/* -- Mobile: vertical stacking -- */
+@media (max-width: 768px) {
+  body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .screen {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+  }
+
+  /* === Title === */
+  #title-screen { padding: 30px 20px; }
+  .title-logo { font-size: 1.8rem; letter-spacing: 3px; }
+  .title-sub { font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 2rem; }
+  .title-start { font-size: 0.9rem; padding: 10px 30px; }
+
+  /* === Dialogue === */
+  #dialogue-screen { padding: 20px 15px; }
+  .dialogue-box { padding: 20px 16px; }
+  .dialogue-text { font-size: 0.82rem; line-height: 1.7; min-height: 80px; }
+  .dialogue-portrait { width: 48px; height: 48px; font-size: 1.4rem; top: -24px; left: 20px; }
+
+  /* === Tutorial choice === */
+  #tutorial-choice-screen { padding: 20px 15px; }
+  #tutorial-choice-screen .dialogue-text { font-size: 0.82rem; min-height: 50px; }
+
+  /* === HUD === */
+  .hud {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 10px;
+    gap: 6px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .hud-left {
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+  }
+  .hud-right {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .hud-btn {
+    font-size: 0.6rem;
+    padding: 5px 8px;
+    letter-spacing: 0.5px;
+  }
+  .hud-level { font-size: 0.8rem; }
+  .hud-title { font-size: 0.7rem; }
+
+  /* === Game body: vertical stack === */
+  #game-screen {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .game-body {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  /* === Toolbar: horizontal scrollable strip === */
+  .toolbar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 10px;
+    gap: 6px;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+  .toolbar::-webkit-scrollbar { display: none; }
+  .toolbar-title { display: none; }
+  .tool-btn {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .tool-icon { width: 20px; height: 20px; font-size: 0.6rem; }
+  .tool-key { display: none; }
+
+  /* === Grid area === */
+  .grid-area {
+    padding: 12px 8px;
+    flex: none;
+  }
+  .grid-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+  /* Prevent double-tap zoom on grid and toolbar */
+  .chip-grid td,
+  .tool-btn,
+  .hud-btn {
+    touch-action: manipulation;
+  }
+
+  /* Grid cells — fit mobile viewport */
+  .chip-grid td          { width: 56px; height: 56px; font-size: 0.6rem; }
+  .chip-grid.size-4 td   { width: 56px; height: 56px; }
+  .chip-grid.size-6 td   { width: 46px; height: 46px; font-size: 0.55rem; }
+  .chip-grid.size-6 td .cell-label { font-size: 0.7rem; }
+  .chip-grid.size-7 td   { width: 42px; height: 42px; font-size: 0.5rem; }
+  .chip-grid.size-7 td .cell-label { font-size: 0.65rem; }
+  .chip-grid.size-8 td   { width: 38px; height: 38px; font-size: 0.45rem; }
+  .chip-grid.size-8 td .cell-label { font-size: 0.6rem; }
+  .chip-grid.size-8 td .cell-name { font-size: 0.35rem; }
+  .chip-grid.size-9 td   { width: 34px; height: 34px; font-size: 0.4rem; }
+  .chip-grid.size-9 td .cell-label { font-size: 0.55rem; }
+  .chip-grid.size-9 td .cell-name { font-size: 0.32rem; }
+
+  .cell-label { font-size: 0.75rem; }
+  .cell-name { font-size: 0.5rem; }
+  .cell-coord { font-size: 0.4rem; }
+
+  /* Hint bar */
+  .hint-bar { max-width: 100%; padding: 8px 12px; }
+  .hint-text { font-size: 0.68rem; }
+
+  /* === Info panel: full-width below grid === */
+  .info-panel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    padding: 12px;
+    gap: 10px;
+  }
+  /* Side-by-side PPA + Objectives on mobile */
+  .info-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .info-panel .panel-section:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+  .panel-title { font-size: 0.65rem; margin-bottom: 6px; }
+  .ppa-bar-header { font-size: 0.7rem; }
+  .ppa-total { font-size: 0.8rem; }
+  .ppa-total-value { font-size: 1rem; }
+  .obj-item { font-size: 0.7rem; }
+
+  /* === Result screen === */
+  #result-screen { padding: 25px 15px; gap: 15px; }
+  .result-title { font-size: 1rem; letter-spacing: 2px; }
+  .result-rank { font-size: 4rem; }
+  .result-scores { gap: 15px; flex-wrap: wrap; justify-content: center; }
+  .result-score-label { font-size: 0.6rem; }
+  .result-score-value { font-size: 1.4rem; }
+  .result-total { font-size: 1rem; }
+  .result-total span { font-size: 1.6rem; }
+  .result-btn { padding: 10px 24px; font-size: 0.8rem; }
+  .rank-gate-msg { font-size: 0.75rem; padding: 8px 14px; }
+
+  /* === Victory === */
+  #victory-screen { padding: 30px 15px; }
+  .victory-title { font-size: 1.6rem; letter-spacing: 3px; }
+  .victory-sub { font-size: 0.85rem; }
+  .victory-stats { gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .victory-stat-value { font-size: 1.5rem; }
+
+  /* === Tutorial bubble === */
+  .tutorial-bubble {
+    bottom: 60px;
+    max-width: 92%;
+    padding: 16px 18px 12px;
+  }
+  .tutorial-bubble-text { font-size: 0.78rem; }
+
+  /* === BGM button: don't overlap content === */
+  .bgm-btn { width: 38px; height: 38px; font-size: 1rem; bottom: 12px; right: 12px; }
+
+  /* === Toast === */
+  .toast { font-size: 0.75rem; padding: 10px 18px; bottom: 20px; max-width: 90vw; }
+}
+
+/* -- Small phones -- */
+@media (max-width: 420px) {
+  .title-logo { font-size: 1.5rem; letter-spacing: 2px; }
+  .title-sub { font-size: 0.65rem; letter-spacing: 1px; margin-bottom: 1.5rem; }
+
+  .hud-btn { font-size: 0.55rem; padding: 4px 6px; }
+  .hud-level { font-size: 0.7rem; }
+
+  .tool-btn { padding: 5px 8px; font-size: 0.6rem; }
+  .tool-icon { width: 18px; height: 18px; font-size: 0.55rem; }
+
+  /* Tighter grid cells for small screens */
+  .chip-grid td          { width: 48px; height: 48px; }
+  .chip-grid.size-4 td   { width: 48px; height: 48px; }
+  .chip-grid.size-5 td   { width: 44px; height: 44px; }
+  .chip-grid.size-6 td   { width: 40px; height: 40px; }
+  .chip-grid.size-7 td   { width: 36px; height: 36px; }
+  .chip-grid.size-8 td   { width: 32px; height: 32px; font-size: 0.4rem; }
+  .chip-grid.size-8 td .cell-label { font-size: 0.55rem; }
+  .chip-grid.size-9 td   { width: 28px; height: 28px; font-size: 0.35rem; }
+  .chip-grid.size-9 td .cell-label { font-size: 0.5rem; }
+  .chip-grid.size-9 td .cell-name { display: none; }
+
+  .cell-label { font-size: 0.7rem; }
+  .cell-name { font-size: 0.42rem; }
+  .cell-coord { display: none; }
+
+  .dialogue-text { font-size: 0.78rem; min-height: 60px; }
+
+  /* Stack info panel sections vertically on very small screens */
+  .info-panel {
+    grid-template-columns: 1fr;
+  }
+  .info-panel .panel-section:nth-child(3) {
+    grid-column: auto;
+  }
+
+  .result-rank { font-size: 3.5rem; }
+  .result-score-value { font-size: 1.2rem; }
+
+  .victory-title { font-size: 1.3rem; }
+
+  .tutorial-bubble { bottom: 40px; padding: 14px 14px 10px; }
+  .tutorial-bubble-text { font-size: 0.72rem; line-height: 1.6; }
 }
